@@ -14,7 +14,7 @@ export const themes = {
           },
       },
       typography: {
-          fontSize: baseFontSize + 'px',
+          fontSize: baseFontSize,
       },
   },
   dark: {
@@ -30,7 +30,7 @@ export const themes = {
           },
       },
       typography: {
-          fontSize: baseFontSize + 'px',
+          fontSize: baseFontSize,
       },
   },
   brown: {
@@ -46,7 +46,7 @@ export const themes = {
           },
       },
       typography: {
-          fontSize: baseFontSize + 'px',
+          fontSize: baseFontSize,
       },
   },
 };

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import logo from '../../logo.svg'; // Import your logo file
 import { FaCog, FaList, FaCaretDown, FaSearch, FaBars, FaPlus, FaMinus } from 'react-icons/fa'; // Import the setting icon from react-icons library
-import { AppBar, Toolbar, IconButton, Menu, MenuItem, ListItemIcon, Switch, ListItemText, useMediaQuery, useTheme, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material'; // Import Material-UI components
+import { AppBar, Toolbar, IconButton, Button, Menu, MenuItem, Switch, useMediaQuery, useTheme, Table, TableBody, TableCell, TableRow } from '@mui/material'; // Import Material-UI components
+import { useNavigate } from 'react-router-dom';
 
 const Header = ({ selectedTheme, toggleTheme }) => {
     const [category, setCategory] = useState([]);
@@ -10,8 +11,31 @@ const Header = ({ selectedTheme, toggleTheme }) => {
     const [showContent, setShowContent] = useState(false);
     const [showCategory, setShowCategory] = useState(false);
     const [showSetting, setShowSetting] = useState(false);
+    const [searchValue, setSearchValue] = useState('');
+    const navigate = useNavigate();
+
+    const moveHome = () => {
+        navigate(`/trang-chu`);
+    };
+
+    const handleCategory = (categoryId) => {
+        navigate(`/the-loai/${categoryId}`);
+        setShowCategory(false);
+        setAnchorEl(false);
+    }
+
+    const handleSearch = () => {
+        if (searchValue.trim() !== '') {
+            navigate(`/tim-kiem/${searchValue.trim()}`);
+        }
+    };
+
+    const handleInputChange = (event) => {
+        setSearchValue(event.target.value);
+    };
 
     const theme = useTheme();
+    const [fontSize, setFontSize] = useState(theme.typography.fontSize);
     const isMobile = useMediaQuery(theme.breakpoints.down('sm')); 
 
     const handleCategoryClick = (event) => {
@@ -42,59 +66,73 @@ const Header = ({ selectedTheme, toggleTheme }) => {
         setShowSetting(!showSetting);
     };
 
+    useEffect(() => {
+        const storedFontSize = localStorage.getItem('fontSize');
+        const baseFontSize = 16;
+        const initialFontSize = storedFontSize ? parseInt(storedFontSize) : baseFontSize;
+    
+        const root = document.documentElement;
+        root.style.fontSize = `${initialFontSize}px`;
+        setFontSize(initialFontSize);
+    }, []);
+
     const adjustTextSize = (action) => {
         const root = document.documentElement;
-        let currentFontSize = parseFloat(window.getComputedStyle(root).fontSize);
     
+        let newFontSize = fontSize;
         if (action === 'increase') {
-            currentFontSize += 1;
+            newFontSize += 1;
         } else if (action === 'decrease') {
-            currentFontSize -= 1;
+            newFontSize -= 1;
         }
     
-        root.style.fontSize = `${currentFontSize}px`;
+        root.style.fontSize = `${newFontSize}px`;
+        setFontSize(newFontSize);
+    
+        localStorage.setItem('fontSize', newFontSize);
+        console.log(newFontSize)
     };
 
     useEffect(() => {
         const data = [
-            'Tiên Hiệp',
-            'Kiếm Hiệp',
-            'Ngôn Tình',
-            'Đam Mỹ',
-            'Quan Trường',
-            'Võng Du',
-            'Khoa Huyễn',
-            'Hệ Thống',
-            'Huyền Huyễn',
-            'Dị Giới',
-            'Dị Năng',
-            'Quân Sự',
-            'Lịch Sử',
-            'Xuyên Không',
-            'Xuyên Nhanh',
-            'Trọng Sinh',
-            'Trinh Thám',
-            'Thám Hiểm',
-            'Linh Dị',
-            'Ngược',
-            'Sủng',
-            'Cung Đấu',
-            'Nữ Cường',
-            'Gia Đấu',
-            'Đông Phương',
-            'Đô Thị',
-            'Bách Hợp',
-            'Hài Hước',
-            'Điền Văn',
-            'Cổ Đại',
-            'Mạt Thế',
-            'Truyện Teen',
-            'Phương Tây',
-            'Nữ Phụ',
-            'Light Novel',
-            'Việt Nam',
-            'Đoản Văn',
-            'Khác'
+            { name: 'Tiên Hiệp', id: 'tien-hiep' },
+            { name: 'Kiếm Hiệp', id: 'kiem-hiep' },
+            { name: 'Ngôn Tình', id: 'ngon-tinh' },
+            { name: 'Đam Mỹ', id: 'dam-my' },
+            { name: 'Quan Trường', id: 'quan-truong' },
+            { name: 'Võng Du', id: 'vong-du' },
+            { name: 'Khoa Huyễn', id: 'khoa-huyen' },
+            { name: 'Hệ Thống', id: 'he-thong' },
+            { name: 'Huyền Huyễn', id: 'huyen-huyen' },
+            { name: 'Dị Giới', id: 'di-gioi' },
+            { name: 'Dị Năng', id: 'di-nang' },
+            { name: 'Quân Sự', id: 'quan-su' },
+            { name: 'Lịch Sử', id: 'lich-su' },
+            { name: 'Xuyên Không', id: 'xuyen-khong' },
+            { name: 'Xuyên Nhanh', id: 'xuyen-nhanh' },
+            { name: 'Trọng Sinh', id: 'trong-sinh' },
+            { name: 'Trinh Thám', id: 'trinh-tham' },
+            { name: 'Thám Hiểm', id: 'tham-hiem' },
+            { name: 'Linh Dị', id: 'linh-di' },
+            { name: 'Ngược', id: 'nguoc' },
+            { name: 'Sủng', id: 'sung' },
+            { name: 'Cung Đấu', id: 'cung-dau' },
+            { name: 'Nữ Cường', id: 'nu-cuong' },
+            { name: 'Gia Đấu', id: 'gia-dau' },
+            { name: 'Đông Phương', id: 'dong-phuong' },
+            { name: 'Đô Thị', id: 'do-thi' },
+            { name: 'Bách Hợp', id: 'bach-hop' },
+            { name: 'Hài Hước', id: 'hai-huoc' },
+            { name: 'Điền Văn', id: 'dien-van' },
+            { name: 'Cổ Đại', id: 'co-dai' },
+            { name: 'Mạt Thế', id: 'mat-the' },
+            { name: 'Truyện Teen', id: 'truyen-teen' },
+            { name: 'Phương Tây', id: 'phuong-tay' },
+            { name: 'Nữ Phụ', id: 'nu-phu' },
+            { name: 'Light Novel', id: 'light-novel' },
+            { name: 'Việt Nam', id: 'viet-nam' },
+            { name: 'Đoản Văn', id: 'doan-van' },
+            { name: 'Khác', id: 'khac' }
         ]
         setCategory(data);
      }, []);
@@ -119,7 +157,9 @@ const Header = ({ selectedTheme, toggleTheme }) => {
                 {isMobile ? (
                     <div>
                         <div style={{ display: 'flex', alignItems: 'center', padding: '5px'}}>
-                        <img src={logo} alt="logo" style={{ marginRight: '10px', height: '30px'}} />
+                        <Button onClick={moveHome}>
+                            <img src={logo} alt="logo" style={{ marginRight: '10px', height: '30px'}} />
+                        </Button>
                         <IconButton 
                             onClick={handleIconClick}
                             size="large"
@@ -148,16 +188,16 @@ const Header = ({ selectedTheme, toggleTheme }) => {
                                     <FaCaretDown/>
                                 </IconButton>
                                 {showCategory && (
-                                    <div id="category-menu" style={{ visibility: 'visible' }}>
+                                    <div id="category-menu" style={{ visibility: 'visible'}}>
                                         <Table>
                                             <TableBody>
                                                 {category.map((cat, index) => (
                                                     index % 4 === 0 && (
                                                         <TableRow key={index}>
-                                                            <TableCell>{cat}</TableCell>
-                                                            {category[index + 1] && <TableCell>{category[index + 1]}</TableCell>}
-                                                            {category[index + 2] && <TableCell>{category[index + 2]}</TableCell>}
-                                                            {category[index + 3] && <TableCell>{category[index + 3]}</TableCell>}
+                                                            <TableCell style={{color: 'white', cursor: 'pointer'}} onClick={() => handleCategory(cat.id)}>{cat.name}</TableCell>
+                                                            {category[index + 1] && <TableCell style={{color: 'white', cursor: 'pointer'}} onClick={() => handleCategory(category[index + 1].id)}>{category[index + 1].name}</TableCell>}
+                                                            {category[index + 2] && <TableCell style={{color: 'white', cursor: 'pointer'}} onClick={() => handleCategory(category[index + 2].id)}>{category[index + 2].name}</TableCell>}
+                                                            {category[index + 3] && <TableCell style={{color: 'white', cursor: 'pointer'}} onClick={() => handleCategory(category[index + 3].id)}>{category[index + 3].name}</TableCell>}
                                                         </TableRow>
                                                     )
                                                 ))}
@@ -181,24 +221,38 @@ const Header = ({ selectedTheme, toggleTheme }) => {
                                 </IconButton>
                                 {showSetting && (
                                     <div id="setting-menu" style={{ visibility: 'visible', marginLeft: '20px' }}>
-                                        <span>Chủ đề:</span>
-                                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                                            <span style={{ marginRight: '5px', marginLeft: '5px' }}>Sáng</span>
-                                            <Switch 
-                                                checked={selectedTheme === 'light'}
-                                                onChange={() => toggleTheme('light')} 
-                                            />
-                                            <span style={{ marginRight: '5px', marginLeft: '5px' }}>Tối</span>
-                                            <Switch 
-                                                checked={selectedTheme === 'dark'}
-                                                onChange={() => toggleTheme('dark')} 
-                                            />
-                                            <span style={{ marginRight: '5px', marginLeft: '5px' }}>Nâu</span>
-                                            <Switch 
-                                                checked={selectedTheme === 'brown'}
-                                                onChange={() => toggleTheme('brown')} 
-                                            />
-                                        </div>
+                                        <Toolbar>
+                                            <span>Cỡ chữ:</span>
+                                            <div style={{ display: 'flex', alignItems: 'center', marginLeft: '10px' }}>
+                                                <IconButton size="small" style={{background: 'white', marginRight: '3px'}} onClick={() => adjustTextSize('decrease')}>
+                                                    <FaMinus />
+                                                </IconButton>
+                                                {fontSize}
+                                                <IconButton size="small" style={{background: 'white', marginLeft: '3px'}} onClick={() => adjustTextSize('increase')}>
+                                                    <FaPlus />
+                                                </IconButton>
+                                            </div>
+                                        </Toolbar>
+                                        <Toolbar>
+                                            <span>Chủ đề:</span>
+                                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                <span style={{ marginRight: '5px', marginLeft: '5px' }}>Sáng</span>
+                                                <Switch 
+                                                    checked={selectedTheme === 'light'}
+                                                    onChange={() => toggleTheme('light')} 
+                                                />
+                                                <span style={{ marginRight: '5px', marginLeft: '5px' }}>Tối</span>
+                                                <Switch 
+                                                    checked={selectedTheme === 'dark'}
+                                                    onChange={() => toggleTheme('dark')} 
+                                                />
+                                                <span style={{ marginRight: '5px', marginLeft: '5px' }}>Nâu</span>
+                                                <Switch 
+                                                    checked={selectedTheme === 'brown'}
+                                                    onChange={() => toggleTheme('brown')} 
+                                                />
+                                            </div>
+                                        </Toolbar>
                                     </div>
                                 )}
                             </div>
@@ -207,7 +261,12 @@ const Header = ({ selectedTheme, toggleTheme }) => {
                                     <tbody>
                                         <tr>
                                             <td style={{ paddingRight: '5px' }}>
-                                                <input type="text" placeholder="Tìm kiếm..." style={{ padding: '5px', borderRadius: '5px', border: 'none', width: '95%' }} />
+                                                <input 
+                                                    type="text" 
+                                                    placeholder="Tìm kiếm..." 
+                                                    style={{ padding: '5px', borderRadius: '5px', border: 'none', width: '95%' }} 
+                                                    onChange={handleInputChange}
+                                                />
                                             </td>
                                             <td>
                                             <IconButton
@@ -216,7 +275,7 @@ const Header = ({ selectedTheme, toggleTheme }) => {
                                                 color="inherit"
                                                 aria-label="search"
                                                 paddingLeft='5px'
-                                                onClick={handleCategoryClick}
+                                                onClick={handleSearch}
                                             >
                                                 <FaSearch />
                                             </IconButton>
@@ -231,7 +290,9 @@ const Header = ({ selectedTheme, toggleTheme }) => {
                 ) : (
                     <Toolbar>
                         <div style={{ flexGrow: 1 }}>
-                            <img src={logo} alt="logo" style={{ marginRight: '10px', height: '30px' }} />
+                            <Button onClick={moveHome}>
+                                <img src={logo} alt="logo" style={{ marginRight: '10px', height: '30px'}} />
+                            </Button>
                         </div>
                         <div style={{ flexGrow: 1 }}>
                             <IconButton
@@ -265,10 +326,10 @@ const Header = ({ selectedTheme, toggleTheme }) => {
                                         {category.map((cat, index) => (
                                             index % 4 === 0 && (
                                                 <TableRow key={index}>
-                                                    <TableCell>{cat}</TableCell>
-                                                    {category[index + 1] && <TableCell>{category[index + 1]}</TableCell>}
-                                                    {category[index + 2] && <TableCell>{category[index + 2]}</TableCell>}
-                                                    {category[index + 3] && <TableCell>{category[index + 3]}</TableCell>}
+                                                    <TableCell style={{ cursor: 'pointer' }}onClick={() => handleCategory(cat.id)}>{cat.name}</TableCell>
+                                                    {category[index + 1] && <TableCell style={{ cursor: 'pointer' }} onClick={() => handleCategory(category[index + 1].id)}>{category[index + 1].name}</TableCell>}
+                                                    {category[index + 2] && <TableCell style={{ cursor: 'pointer' }} onClick={() => handleCategory(category[index + 2].id)}>{category[index + 2].name}</TableCell>}
+                                                    {category[index + 3] && <TableCell style={{ cursor: 'pointer' }} onClick={() => handleCategory(category[index + 3].id)}>{category[index + 3].name}</TableCell>}
                                                 </TableRow>
                                             )
                                         ))}
@@ -281,7 +342,12 @@ const Header = ({ selectedTheme, toggleTheme }) => {
                                 <tbody>
                                     <tr>
                                         <td style={{ paddingRight: '5px' }}>
-                                            <input type="text" placeholder="Tìm kiếm..." style={{ padding: '5px', borderRadius: '5px', border: 'none', width: '95%' }} />
+                                            <input 
+                                                type="text" 
+                                                placeholder="Tìm kiếm..." 
+                                                style={{ padding: '5px', borderRadius: '5px', border: 'none', width: '95%' }} 
+                                                onChange={handleInputChange}
+                                            />
                                         </td>
                                         <td>
                                         <IconButton
@@ -289,6 +355,7 @@ const Header = ({ selectedTheme, toggleTheme }) => {
                                             edge="start"
                                             color="inherit"
                                             aria-label="search"
+                                            onClick={handleSearch}
                                         >
                                             <FaSearch />
                                         </IconButton>
@@ -325,13 +392,13 @@ const Header = ({ selectedTheme, toggleTheme }) => {
                             >
                                 <MenuItem>
                                     <span>Cỡ chữ:</span>
-                                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                                        <IconButton size="small" onClick={() => adjustTextSize('increase')}>
-                                            <FaPlus />
-                                        </IconButton>
-                                        {window.getComputedStyle(document.documentElement).fontSize}
-                                        <IconButton size="small" onClick={() => adjustTextSize('decrease')}>
+                                    <div style={{ display: 'flex', alignItems: 'center', marginLeft: '10px' }}>
+                                        <IconButton size="small" style={{background: 'white', marginRight: '3px'}} onClick={() => adjustTextSize('decrease')}>
                                             <FaMinus />
+                                        </IconButton>
+                                        {fontSize}
+                                        <IconButton size="small" style={{background: 'white', marginLeft: '3px'}} onClick={() => adjustTextSize('increase')}>
+                                            <FaPlus />
                                         </IconButton>
                                     </div>
                                 </MenuItem>
