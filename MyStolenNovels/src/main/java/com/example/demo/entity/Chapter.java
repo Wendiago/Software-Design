@@ -1,13 +1,16 @@
 package com.example.demo.entity;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Category {
-    private long id;
-    private String name;
+@Builder
+public class Chapter {
+    private int chapterNumber;
+    private String chapterTitle;
+    private String fullTitle;
 }

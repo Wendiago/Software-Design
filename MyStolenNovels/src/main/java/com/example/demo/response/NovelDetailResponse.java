@@ -1,5 +1,7 @@
-package com.example.demo.entity;
+package com.example.demo.response;
 
+import com.example.demo.dto.NovelDetailDTO;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,15 +11,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Novel {
-    private long id;
+public class NovelDetailResponse {
     private String title;
     private String image;
-    private String status;
     private String author;
-    private int total_chapters;
-    private int total_likes;
-    private String total_view;
-    private String chapters_new;
+    private String genres;
+    private String source;
+    private String rating;
     private String description;
 }
