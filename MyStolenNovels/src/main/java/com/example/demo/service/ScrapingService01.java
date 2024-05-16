@@ -12,23 +12,24 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class ScrapingService {
+public class ScrapingService01 {
     @Autowired
-    private StringManipulator stringManipulator;
+    private static StringManipulator stringManipulator;
 
-    public static void main(String[] args) {
-        String url = "https://truyenfull.vn";
+    public static void main01(String[] args) {
+        String url = "https://truyencv.vn";
 
         try {
             // Send an HTTP GET request to the website
             Document document = Jsoup.connect(url).get();
 
-            Elements categoryListElements = document.select("ul.control.navbar-nav div.dropdown-menu.multi-column ul.dropdown-menu li");
+            Elements categoryListElements = document.getElementsByClass("flex items-center h-[30px] pl-5");
 
             List<String> categoryList = new ArrayList<>();
             for (Element categoryElement : categoryListElements){
@@ -36,34 +37,38 @@ public class ScrapingService {
             }
 
             System.out.println(categoryList);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private static int getTotalPages(Document document){
-        Elements pageLinks = document.select("ul.pagination.pagination-sm > li:not(.dropup.page-nav)");
-        Element lastPageElement = pageLinks.last();
+
+    private static int getTotalPages(@org.jetbrains.annotations.NotNull Document document){
+        Elements pageLinks = document.getElementsByClass("flex mx-auto border border-solid border-[#dddddd] max-w-max items-center mt-[20px]");
+        Element lastPageElement = pageLinks.select("li").last();
         if (lastPageElement != null) {
             String lastPageLink = lastPageElement.select("a").attr("href");
+            System.out.println(lastPageLink);
             return extractPageNumber(lastPageLink);
         }
         return 1; // Default to 1 page if unable to determine total pages
     }
     private static int extractPageNumber(String url) {
         // Extract the page number from the URL
-        String pageNumberString = url.substring(url.lastIndexOf("-") + 1, url.lastIndexOf("/"));
-        return Integer.parseInt(pageNumberString);
+        String pageNumberString = url.substring(url.lastIndexOf("-")).replace("-","");
+        return Integer.parseInt( pageNumberString);
     }
 
     private static List<NovelByCatDTO> extractNovelsFromPage(Document document) {
-        Elements novelElements = document.select("div.row[itemtype=\"https://schema.org/Book\"]:not(#the-loai-show-ads)");
+        Elements novelElements = document.getElementsByClass("grid grid-cols-12 border-b border-dashed border-[#999]");
         List<NovelByCatDTO> novelByCatList = new ArrayList<>();
+
         for (Element novelElement : novelElements) {
             NovelByCatDTO novelByCat = NovelByCatDTO.builder()
-                    .title(novelElement.select("h3.truyen-title").text())
-                    .author(novelElement.select("span.author").text())
-                    .imageUrl(novelElement.select("div[data-classname=\"cover\"]").attr("data-image"))
+                    .title(novelElement.select("img").attr("alt"))
+                    .author(novelElement.select("span").text())
+                    .imageUrl(novelElement.select("img").attr("src"))
                     .build();
             novelByCatList.add(novelByCat);
         }
@@ -75,7 +80,7 @@ public class ScrapingService {
         //Normalize category string if necessary
         String normalizedCategory = stringManipulator.modify(category);
 
-        String url = "https://truyenfull.vn/the-loai/" + normalizedCategory + "/trang-";
+        String url = "https://truyencv.vn/the-loai/" + normalizedCategory + "/trang-";
         int totalPages = 1;
         try {
             // Send an HTTP GET request to the website
@@ -92,6 +97,7 @@ public class ScrapingService {
                     .totalPages(totalPages)
                     .currentPage(page)
                     .build();
+
         } catch (IOException e) {
             throw new Exception("Error fetching novels by category");
         }
@@ -99,46 +105,49 @@ public class ScrapingService {
 
     //Get novel detail information
     public NovelDetailResponse getNovelDetail(String novelTitle) throws Exception {
-        String url = "https://truyenfull.vn/" + stringManipulator.modify(novelTitle);
+        String url = "https://truyencv.vn/" + stringManipulator.modify(novelTitle);
         try {
             // Send an HTTP GET request to the website
             Document document = Jsoup.connect(url).get();
 
             //Info elements
-            Elements infoElements = document.select("div.col-info-desc");
+            Elements infoElements = document.getElementsByClass("xl:col-span-8 flex flex-col");
 
             //Get title
-            String title = infoElements.select("h3.title").text();
+            String title = document.getElementsByClass("uppercase text-center font-bold text-xl px-4 pb-2 mb-1").text();
 
             //Get image
-            String image = infoElements.select("div.info-holder .book img").attr("src");
+            String selector = "img[alt=\"" + title + "\"]";
+            String image = document.select(selector).attr("src");
 
             //Get author
-            String author = infoElements.select("div.info div:has(h3:contains(Tác giả)) a").text();
+            String author = infoElements.select("span[itemprop=name]").text();
 
             //Get genres
-            Elements genreElements = infoElements.select("div.info div:has(h3:contains(Thể loại)) a");
+            Elements genreElements = document.getElementsByClass("hover:underline capitalize story-category mr-1");
 
             StringBuilder genres = new StringBuilder();
             for (Element genreElement : genreElements){
                 if (!genres.isEmpty()){
                     genres.append(", ");
                 }
-                genres.append(genreElement.attr("title"));
+                genres.append(genreElement.text());
             }
 
             //Get source
-            String source = infoElements.select("div.info div:has(h3:contains(Nguồn)) .source").text();
+            String source = document.select("h1 a").attr("href");
 
             //Desc elements
             Elements descElements = document.select("div.desc");
 
             //Get rating
-            String rating = descElements.select("div.rate span[itemprop=ratingValue]").text();
+            String rating = document.select("span[itemprop=ratingValue]").text();
 
             //Get description
-            String description = descElements.select("div[itemprop=description]").text();
+            String description = document.getElementById("gioi-thieu-truyen").text();
 
+//            String book = "tt: "+ title + " img:"+ image + " auth:"+author + " genres:"+ String.valueOf(genres) +" src:"+ source +" rate:"+ rating +" des:"+ description;
+//            System.out.print(book);
             return NovelDetailResponse.builder()
                     .title(title)
                     .image(image)
@@ -156,21 +165,22 @@ public class ScrapingService {
 
     //Get novel chapter list
     public NovelChapterListResponse getNovelChapterList(String novelTitle, int page) throws Exception{
-        String url = "https://truyenfull.vn/" + stringManipulator.modify(novelTitle) + "/trang-" + Integer.toString(page);
+        // https://truyencv.vn/chi-ton-tu-la?page=2/
+        String url = "https://truyencv.vn/" + stringManipulator.modify(novelTitle) + "?page=" + Integer.toString(page);
         try {
             // Send an HTTP GET request to the website
             Document document = Jsoup.connect(url).get();
-
             // Get total pages
-            String totalPages = document.select("input#total-page").attr("value");
+            Element pageNumberString = document.getElementsByClass("flex mx-auto border border-solid border-[#dddddd] max-w-max items-center mt-[20px] flex-wrap").last();
+            String totalPagesString = pageNumberString.select("a").last().attr("href");
+            String totalPages = totalPagesString.substring(totalPagesString.lastIndexOf("?page=")).replace("?page=", "").replace("/#danh-sach-chuong", "");
 
-            //Get chapter list elements
-            Elements chapterListElements = document.select("div#list-chapter ul.list-chapter li");
+            Elements chapterListElements = document.getElementsByClass("hover:underline block py-[2px] capitalize truncate");
 
             List<String> chapterList = new ArrayList<>();
 
-            for (Element chapterListElement : chapterListElements){
-                chapterList.add(chapterListElement.select("a").text());
+            for (Element chapterListElement : chapterListElements) {
+                chapterList.add(chapterListElement.text());
             }
 
             return NovelChapterListResponse.builder()
@@ -186,12 +196,12 @@ public class ScrapingService {
     }
 
     public CategoriesResponse getCategories() throws Exception{
-        String url = "https://truyenfull.vn";
+        String url = "https://truyencv.vn";
         try {
             // Send an HTTP GET request to the website
             Document document = Jsoup.connect(url).get();
 
-            Elements categoryListElements = document.select("ul.control.navbar-nav div.dropdown-menu.multi-column ul.dropdown-menu li");
+            Elements categoryListElements = document.getElementsByClass("flex items-center h-[30px] pl-5");
 
             List<String> categoryList = new ArrayList<>();
             for (Element categoryElement : categoryListElements){
@@ -205,4 +215,5 @@ public class ScrapingService {
             throw new Exception(e.getMessage());
         }
     }
+
 }
