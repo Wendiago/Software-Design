@@ -15,51 +15,51 @@ const Header = ({ selectedTheme, toggleTheme }) => {
 
     return (
         <AppBar position="static" color="primary">
-                {isMobile ? (
-                    <div>
-                        <div style={{ display: 'flex', alignItems: 'center', padding: '5px'}}>
-                        <LogoButton/>
-                        <IconButton 
-                            onClick={handleIconClick}
-                            size="large"
-                            color="inherit"
-                            aria-label="option"
-                            aria-controls="option-menu"
-                            style={{ marginLeft: 'auto', marginRight: '10px'}}
-                        >
-                            <FaBars />
-                        </IconButton>
-                    </div>
-                    {showContent && (
-                        <div style={{ textAlign: 'left' }}>
-                            <div style={{flexGrow: 1, marginLeft: '10px' }}>
-                                <Category/>
-                            </div>
-                            <div style={{ flexGrow: 1, marginLeft: '10px' }}>
-                                <Setting selectedTheme={selectedTheme} toggleTheme={toggleTheme}/>
-                            </div>
-                            <div style={{ flexGrow: 1, marginLeft: '10px' }}>
-                                <Searchbar/>
-                            </div>
-                        </div>
-                    )}
+            {isMobile ? (
+                <div>
+                    <div style={{ display: 'flex', alignItems: 'center', padding: '5px'}}>
+                    <LogoButton/>
+                    <IconButton 
+                        onClick={handleIconClick}
+                        size="large"
+                        color="inherit"
+                        aria-label="option"
+                        aria-controls="option-menu"
+                        style={{ marginLeft: 'auto', marginRight: '10px'}}
+                    >
+                        <FaBars />
+                    </IconButton>
                 </div>
-                ) : (
-                    <Toolbar>
-                        <div style={{ flexGrow: 1 }}>
-                            <LogoButton/>
-                        </div>
-                        <div style={{ flexGrow: 1 }}>
+                {showContent && (
+                    <div style={{ textAlign: 'left' }}>
+                        <div style={{flexGrow: 1, marginLeft: '10px' }}>
                             <Category/>
                         </div>
-                        <div style={{ flexGrow: 1 }}>
-                            <Searchbar/>
-                        </div>
-                        <div style={{ flexGrow: 1}}>
+                        <div style={{ flexGrow: 1, marginLeft: '10px' }}>
                             <Setting selectedTheme={selectedTheme} toggleTheme={toggleTheme}/>
                         </div>
-                    </Toolbar>
+                        <div style={{ flexGrow: 1, marginLeft: '10px' }}>
+                            <Searchbar/>
+                        </div>
+                    </div>
                 )}
+            </div>
+            ) : (
+                <Toolbar>
+                    <div style={{ flexGrow: 1 }}>
+                        <LogoButton/>
+                    </div>
+                    <div style={{ flexGrow: 1 }}>
+                        <Category/>
+                    </div>
+                    <div style={{ flexGrow: 1 }}>
+                        <Searchbar/>
+                    </div>
+                    <div style={{ flexGrow: 1}}>
+                        <Setting selectedTheme={selectedTheme} toggleTheme={toggleTheme}/>
+                    </div>
+                </Toolbar>
+            )}
         </AppBar>
     );
 }

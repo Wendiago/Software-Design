@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { IconButton, useMediaQuery, useTheme, Menu, Table, TableBody, TableRow, TableCell } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { FaList, FaCaretDown } from 'react-icons/fa';
+import { normalizeString } from '../../utils/stringUtils';
 
 const Category = () => {
     const navigate = useNavigate();
@@ -11,8 +12,8 @@ const Category = () => {
     const [anchorEl, setAnchorEl] = useState(null);
     const [showCategory, setShowCategory] = useState(false);
 
-    const handleCategory = (categoryId) => {
-        navigate(`/the-loai/${categoryId}`);
+    const handleCategory = (categoryName) => {
+        navigate(`/the-loai/${normalizeString(categoryName)}`);
         setShowCategory(false);
         setAnchorEl(false);
     }
@@ -50,44 +51,44 @@ const Category = () => {
     
     useEffect(() => {
         const data = [
-            { name: 'Tiên Hiệp', id: 'tien-hiep' },
-            { name: 'Kiếm Hiệp', id: 'kiem-hiep' },
-            { name: 'Ngôn Tình', id: 'ngon-tinh' },
-            { name: 'Đam Mỹ', id: 'dam-my' },
-            { name: 'Quan Trường', id: 'quan-truong' },
-            { name: 'Võng Du', id: 'vong-du' },
-            { name: 'Khoa Huyễn', id: 'khoa-huyen' },
-            { name: 'Hệ Thống', id: 'he-thong' },
-            { name: 'Huyền Huyễn', id: 'huyen-huyen' },
-            { name: 'Dị Giới', id: 'di-gioi' },
-            { name: 'Dị Năng', id: 'di-nang' },
-            { name: 'Quân Sự', id: 'quan-su' },
-            { name: 'Lịch Sử', id: 'lich-su' },
-            { name: 'Xuyên Không', id: 'xuyen-khong' },
-            { name: 'Xuyên Nhanh', id: 'xuyen-nhanh' },
-            { name: 'Trọng Sinh', id: 'trong-sinh' },
-            { name: 'Trinh Thám', id: 'trinh-tham' },
-            { name: 'Thám Hiểm', id: 'tham-hiem' },
-            { name: 'Linh Dị', id: 'linh-di' },
-            { name: 'Ngược', id: 'nguoc' },
-            { name: 'Sủng', id: 'sung' },
-            { name: 'Cung Đấu', id: 'cung-dau' },
-            { name: 'Nữ Cường', id: 'nu-cuong' },
-            { name: 'Gia Đấu', id: 'gia-dau' },
-            { name: 'Đông Phương', id: 'dong-phuong' },
-            { name: 'Đô Thị', id: 'do-thi' },
-            { name: 'Bách Hợp', id: 'bach-hop' },
-            { name: 'Hài Hước', id: 'hai-huoc' },
-            { name: 'Điền Văn', id: 'dien-van' },
-            { name: 'Cổ Đại', id: 'co-dai' },
-            { name: 'Mạt Thế', id: 'mat-the' },
-            { name: 'Truyện Teen', id: 'truyen-teen' },
-            { name: 'Phương Tây', id: 'phuong-tay' },
-            { name: 'Nữ Phụ', id: 'nu-phu' },
-            { name: 'Light Novel', id: 'light-novel' },
-            { name: 'Việt Nam', id: 'viet-nam' },
-            { name: 'Đoản Văn', id: 'doan-van' },
-            { name: 'Khác', id: 'khac' }
+            'Tiên Hiệp',  
+            'Kiếm Hiệp', 
+            'Ngôn Tình', 
+            'Đam Mỹ',
+            'Quan Trường', 
+            'Võng Du',
+            'Khoa Huyễn', 
+            'Hệ Thống',
+            'Huyền Huyễn',
+            'Dị Giới',
+            'Dị Năng',
+            'Quân Sự',
+            'Lịch Sử',
+            'Xuyên Không',
+            'Xuyên Nhanh',
+            'Trọng Sinh',
+            'Trinh Thám',
+            'Thám Hiểm',
+            'Linh Dị',
+            'Ngược',
+            'Sủng',
+            'Cung Đấu',
+            'Nữ Cường',
+            'Gia Đấu',
+            'Đông Phương',
+            'Đô Thị',
+            'Bách Hợp',
+            'Hài Hước',
+            'Điền Văn',
+            'Cổ Đại',
+            'Mạt Thế',
+            'Truyện Teen',
+            'Phương Tây',
+            'Nữ Phụ',
+            'Light Novel',
+            'Việt Nam',
+            'Đoản Văn',
+            'Khác',
         ]
         setCategory(data);
     }, []);
@@ -116,10 +117,10 @@ const Category = () => {
                                 {category.map((cat, index) => (
                                     index % 4 === 0 && (
                                         <TableRow key={index}>
-                                            <TableCell style={{color: 'white', cursor: 'pointer'}} onClick={() => handleCategory(cat.id)}>{cat.name}</TableCell>
-                                            {category[index + 1] && <TableCell style={{color: 'white', cursor: 'pointer'}} onClick={() => handleCategory(category[index + 1].id)}>{category[index + 1].name}</TableCell>}
-                                            {category[index + 2] && <TableCell style={{color: 'white', cursor: 'pointer'}} onClick={() => handleCategory(category[index + 2].id)}>{category[index + 2].name}</TableCell>}
-                                            {category[index + 3] && <TableCell style={{color: 'white', cursor: 'pointer'}} onClick={() => handleCategory(category[index + 3].id)}>{category[index + 3].name}</TableCell>}
+                                            <TableCell style={{color: 'white', cursor: 'pointer'}} onClick={() => handleCategory(cat)}>{cat}</TableCell>
+                                            {category[index + 1] && <TableCell style={{color: 'white', cursor: 'pointer'}} onClick={() => handleCategory(category[index + 1])}>{category[index + 1]}</TableCell>}
+                                            {category[index + 2] && <TableCell style={{color: 'white', cursor: 'pointer'}} onClick={() => handleCategory(category[index + 2])}>{category[index + 2]}</TableCell>}
+                                            {category[index + 3] && <TableCell style={{color: 'white', cursor: 'pointer'}} onClick={() => handleCategory(category[index + 3])}>{category[index + 3]}</TableCell>}
                                         </TableRow>
                                     )
                                 ))}
@@ -161,10 +162,10 @@ const Category = () => {
                             {category.map((cat, index) => (
                                 index % 4 === 0 && (
                                     <TableRow key={index}>
-                                        <TableCell style={{ cursor: 'pointer' }} onClick={() => handleCategory(cat.id)}>{cat.name}</TableCell>
-                                        {category[index + 1] && <TableCell style={{ cursor: 'pointer' }} onClick={() => handleCategory(category[index + 1].id)}>{category[index + 1].name}</TableCell>}
-                                        {category[index + 2] && <TableCell style={{ cursor: 'pointer' }} onClick={() => handleCategory(category[index + 2].id)}>{category[index + 2].name}</TableCell>}
-                                        {category[index + 3] && <TableCell style={{ cursor: 'pointer' }} onClick={() => handleCategory(category[index + 3].id)}>{category[index + 3].name}</TableCell>}
+                                        <TableCell style={{color: 'white', cursor: 'pointer'}} onClick={() => handleCategory(cat)}>{cat}</TableCell>
+                                        {category[index + 1] && <TableCell style={{color: 'white', cursor: 'pointer'}} onClick={() => handleCategory(category[index + 1])}>{category[index + 1]}</TableCell>}
+                                        {category[index + 2] && <TableCell style={{color: 'white', cursor: 'pointer'}} onClick={() => handleCategory(category[index + 2])}>{category[index + 2]}</TableCell>}
+                                        {category[index + 3] && <TableCell style={{color: 'white', cursor: 'pointer'}} onClick={() => handleCategory(category[index + 3])}>{category[index + 3]}</TableCell>}
                                     </TableRow>
                                 )
                             ))}
