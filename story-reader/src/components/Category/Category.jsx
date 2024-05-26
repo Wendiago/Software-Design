@@ -114,7 +114,7 @@ const Category = () => {
                     <div id="category-menu" style={{ visibility: 'visible'}}>
                         <Table>
                             <TableBody>
-                                {category.map((cat, index) => (
+                                {category?.map((cat, index) => (
                                     index % 4 === 0 && (
                                         <TableRow key={index}>
                                             <TableCell style={{color: 'white', cursor: 'pointer'}} onClick={() => handleCategory(cat)}>{cat}</TableCell>
@@ -159,13 +159,13 @@ const Category = () => {
                 >
                     <Table>
                         <TableBody>
-                            {category.map((cat, index) => (
+                            {category?.map((cat, index) => (
                                 index % 4 === 0 && (
                                     <TableRow key={index}>
-                                        <TableCell style={{color: 'white', cursor: 'pointer'}} onClick={() => handleCategory(cat)}>{cat}</TableCell>
-                                        {category[index + 1] && <TableCell style={{color: 'white', cursor: 'pointer'}} onClick={() => handleCategory(category[index + 1])}>{category[index + 1]}</TableCell>}
-                                        {category[index + 2] && <TableCell style={{color: 'white', cursor: 'pointer'}} onClick={() => handleCategory(category[index + 2])}>{category[index + 2]}</TableCell>}
-                                        {category[index + 3] && <TableCell style={{color: 'white', cursor: 'pointer'}} onClick={() => handleCategory(category[index + 3])}>{category[index + 3]}</TableCell>}
+                                        <TableCell style={{ cursor: 'pointer'}} onClick={() => handleCategory(cat)}>{cat}</TableCell>
+                                        {category[index + 1] && <TableCell style={{ cursor: 'pointer'}} onClick={() => handleCategory(category[index + 1])}>{category[index + 1]}</TableCell>}
+                                        {category[index + 2] && <TableCell style={{ cursor: 'pointer'}} onClick={() => handleCategory(category[index + 2])}>{category[index + 2]}</TableCell>}
+                                        {category[index + 3] && <TableCell style={{ cursor: 'pointer'}} onClick={() => handleCategory(category[index + 3])}>{category[index + 3]}</TableCell>}
                                     </TableRow>
                                 )
                             ))}

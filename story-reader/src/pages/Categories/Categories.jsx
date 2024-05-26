@@ -100,7 +100,7 @@ const Categories = () => {
           Truyện Alime
         </Typography> */}
         <List>
-          {data.map((item, index) => (
+          {data?.map((item, index) => (
             <ListItem key={index}>
               <Card className={classes.card}>
                 <CardMedia

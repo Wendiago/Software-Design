@@ -106,7 +106,7 @@ const ChapterList = ({ title }) => {
         <Grid container spacing={2} className={classes.list}>
           <Grid item xs={6}>
             <List>
-              {currentChapters.slice(0, columnChapters).map((chapter, index) => (
+              {currentChapters.slice(0, columnChapters)?.map((chapter, index) => (
                 <ListItem button key={index} onClick={() => handleChapter(startIndex + index + 1)}>
                   <ListItemText primary={chapter} />
                 </ListItem>
@@ -115,7 +115,7 @@ const ChapterList = ({ title }) => {
           </Grid>
           <Grid item xs={6}>
             <List>
-              {currentChapters.slice(columnChapters).map((chapter, index) => (
+              {currentChapters.slice(columnChapters)?.map((chapter, index) => (
                 <ListItem button key={index} onClick={() => handleChapter(startIndex + columnChapters + index + 1)}>
                   <ListItemText primary={chapter} />
                 </ListItem>

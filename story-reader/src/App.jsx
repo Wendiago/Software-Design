@@ -8,7 +8,8 @@ import {
   Categories,
   SearchResult,
   StoryIntroduction,
-  StoryReading
+  StoryReading,
+  AuthorRelated
 } from './pages';
 import './App.css';
 
@@ -65,6 +66,14 @@ function App() {
               element={
                 <Container selectedTheme={selectedTheme} toggleTheme={toggleTheme} >
                   <StoryIntroduction />
+                </Container>
+              }
+            />
+            <Route
+              path="/tac-gia/:name"
+              element={
+                <Container selectedTheme={selectedTheme} toggleTheme={toggleTheme} >
+                  <AuthorRelated />
                 </Container>
               }
             />

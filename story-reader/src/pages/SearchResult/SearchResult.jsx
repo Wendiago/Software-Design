@@ -120,7 +120,7 @@ function SearchResult() {
       </AppBar>
       <Container>
         <Grid container spacing={3}>
-          {data.map((anime, index) => (
+          {data?.map((anime, index) => (
             <Grid item xs={12} sm={6} md={4} key={index}>
               <Card className={classes.card}>
                 <CardMedia

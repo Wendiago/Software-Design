@@ -9,12 +9,15 @@ import {
   Button
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { useNavigate } from 'react-router-dom';
+import { normalizeString } from '../../utils/stringUtils';
 
 const PREFIX = 'SidebarNav';
 const classes = {
   root: `${PREFIX}-root`,
   section: `${PREFIX}-section`,
-  trendingButtonGroup: `${PREFIX}-trendingButtonGroup`
+  trendingButtonGroup: `${PREFIX}-trendingButtonGroup`,
+  item: `${PREFIX}-item`, 
 };
 
 const Root = styled('div')(({ theme }) => ({
@@ -28,23 +31,40 @@ const Root = styled('div')(({ theme }) => ({
   [`& .${classes.trendingButtonGroup}`]: {
     marginBottom: theme.spacing(2),
   },
+  [`& .${classes.item}`]: {
+    cursor: 'pointer',
+  },
 }));
 
-const TruyenCungTacGia = ({ stories }) => (
-  <div className={classes.section}>
-    <Typography variant="h6">TRUYỆN CÙNG TÁC GIẢ</Typography>
-    <List>
-      {stories.map((story, index) => (
-        <ListItem button component="a" href={story.link} key={index}>
-          <ListItemText primary={story.title} />
-        </ListItem>
-      ))}
-    </List>
-  </div>
-);
+const TruyenCungTacGia = ({ stories }) => {
+  const navigate = useNavigate();
+
+  const handleStory = (storyName) => {
+    console.log(storyName);
+    navigate(`/gioi-thieu/${normalizeString(storyName)}`);
+  };
+
+  return (
+    <div className={classes.section}>
+      <Typography variant="h6">TRUYỆN CÙNG TÁC GIẢ</Typography>
+      <List>
+        {stories?.map((story, index) => (
+          <ListItem key={index}>
+            <ListItemText className={classes.item} primary={story.title} onClick={() => handleStory(story.title)} />
+          </ListItem>
+        ))}
+      </List>
+    </div>
+  );
+};
 
 const TruyenDangHot = ({ trendingStories }) => {
   const [selectedTab, setSelectedTab] = React.useState('day');
+  const navigate = useNavigate();
+
+  const handleStory = (storyName) => {
+    navigate(`/gioi-thieu/${normalizeString(storyName)}`);
+  };
 
   return (
     <div className={classes.section}>
@@ -59,11 +79,13 @@ const TruyenDangHot = ({ trendingStories }) => {
         <Button onClick={() => setSelectedTab('allTime')}>ALL TIME</Button>
       </ButtonGroup>
       <List>
-        {trendingStories[selectedTab].map((story, index) => (
+        {trendingStories[selectedTab]?.map((story, index) => (
           <ListItem key={index}>
             <ListItemText
+              className={classes.item}
               primary={story.title}
               secondary={story.genre}
+              onClick={() => handleStory(story.title)}
             />
           </ListItem>
         ))}
@@ -77,7 +99,7 @@ const SidebarNav = () => {
     { title: "Chương Hoan", link: "#" },
     { title: "Thiều Quang Đến Chậm", link: "#" }
   ];
-  
+
   const trendingStories = {
     day: [
       { title: "Thần Đạo Đan Tôn", genre: "Tiên Hiệp, Huyền Huyễn" },

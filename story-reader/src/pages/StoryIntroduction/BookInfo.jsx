@@ -98,7 +98,7 @@ const BookInfo = () => {
               </div>
               <div>
                 Thể loại: 
-                {storyInfo.categoryList.map((category, index) => (
+                {storyInfo.categoryList?.map((category, index) => (
                   <span
                     key={index}
                     onClick={() => handleCategory(category)}
