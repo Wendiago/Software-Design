@@ -1,15 +1,15 @@
 package com.example.demo.service;
 
+import com.example.demo.controller.NovelFetchingController;
 import com.example.demo.dto.NovelByCatDTO;
-import com.example.demo.response.CategoriesResponse;
-import com.example.demo.response.NovelByCatResponse;
-import com.example.demo.response.NovelChapterListResponse;
-import com.example.demo.response.NovelDetailResponse;
+import com.example.demo.response.*;
 import com.example.demo.utils.StringManipulator;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
@@ -17,28 +17,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class ScrapingService {
+public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
     @Autowired
     private StringManipulator stringManipulator;
-
-    public static void main(String[] args) {
-        String url = "https://truyenfull.vn";
+    private static final Logger log = LoggerFactory.getLogger(Truyenfull_ScrapingService.class);
+    public static void main (String []arg) throws Exception {
+        String title = "linh-vu-thien-ha";
+        int chapterNumber = 12;
+        String url = "https://truyenfull.vn/" + title + "/chuong-"
+                + Integer.toString(chapterNumber);
         try {
             // Send an HTTP GET request to the website
             Document document = Jsoup.connect(url).get();
-
-            Elements categoryListElements = document.select("ul.control.navbar-nav div.dropdown-menu.multi-column ul.dropdown-menu li");
-
-            List<String> categoryList = new ArrayList<>();
-            for (Element categoryElement : categoryListElements){
-                categoryList.add(categoryElement.select("a").text());
-            }
-
-            System.out.println(categoryList);
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
+            String content = document.select("#chapter-c.chapter-c").text();
+            NovelChapterContentResponse res = NovelChapterContentResponse.builder()
+                    .title(title)
+                    .chapterNumber(chapterNumber)
+                    .content(content)
+                    .build();
+            System.out.println(res);
+        }
+        catch(Exception e){
+            throw new Exception(e.getMessage());
         }
     }
 
@@ -72,6 +72,7 @@ public class ScrapingService {
     }
 
     //Get novels by category
+    @Override
     public NovelByCatResponse getNovelsByCategory(String category, int page) throws Exception{
         //Normalize category string if necessary
         String normalizedCategory = stringManipulator.modify(category);
@@ -99,6 +100,7 @@ public class ScrapingService {
     }
 
     //Get novel detail information
+    @Override
     public NovelDetailResponse getNovelDetail(String novelTitle) throws Exception {
         String url = "https://truyenfull.vn/" + stringManipulator.modify(novelTitle);
         try {
@@ -156,6 +158,7 @@ public class ScrapingService {
     }
 
     //Get novel chapter list
+    @Override
     public NovelChapterListResponse getNovelChapterList(String novelTitle, int page) throws Exception{
         String url = "https://truyenfull.vn/" + stringManipulator.modify(novelTitle) + "/trang-" + Integer.toString(page);
         try {
@@ -186,6 +189,31 @@ public class ScrapingService {
         }
     }
 
+    //Get chapter content
+    @Override
+    public NovelChapterContentResponse getNovelChapterContent(String title, int chapterNumber) throws Exception{
+        String url = "https://truyenfull.vn/" + stringManipulator.modify(title) + "/chuong-"
+                + Integer.toString(chapterNumber);
+        log.info("Constructed URL: {}", url);
+        try {
+            // Send an HTTP GET request to the website
+            Document document = Jsoup.connect(url).get();
+            String content = document.select("#chapter-c.chapter-c").text();
+            log.info("Get chapter content {}", content);
+            return NovelChapterContentResponse.builder()
+                    .title(title)
+                    .chapterNumber(chapterNumber)
+                    .content(content)
+                    .build();
+        }
+        catch(Exception e){
+            throw new Exception(e.getMessage());
+        }
+    }
+
+
+    //Get all categories
+    @Override
     public CategoriesResponse getCategories() throws Exception{
         String url = "https://truyenfull.vn";
         try {
