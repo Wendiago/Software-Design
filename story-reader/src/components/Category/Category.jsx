@@ -3,6 +3,7 @@ import { IconButton, useMediaQuery, useTheme, Menu, Table, TableBody, TableRow, 
 import { useNavigate } from 'react-router-dom';
 import { FaList, FaCaretDown } from 'react-icons/fa';
 import { normalizeString } from '../../utils/stringUtils';
+import { categoryAPI, sourceAPI } from '../../api';
 
 const Category = () => {
     const navigate = useNavigate();
@@ -33,64 +34,32 @@ const Category = () => {
         setShowCategory(!showCategory);
     };
 
-    // useEffect(() => {
-    //     fetch('https://reqres.in/api/users')
-    //         .then(response => {
-    //             if (!response.ok) {
-    //                 throw new Error('Network response was not ok');
-    //             }
-    //             return response.json();
-    //         })
-    //         .then(data => {
-    //             setCategory(data.data);
-    //         })
-    //         .catch(error => {
-    //             console.error('Error fetching data:', error);
-    //         });
-    // }, []);
-    
     useEffect(() => {
-        const data = [
-            'Tiên Hiệp',  
-            'Kiếm Hiệp', 
-            'Ngôn Tình', 
-            'Đam Mỹ',
-            'Quan Trường', 
-            'Võng Du',
-            'Khoa Huyễn', 
-            'Hệ Thống',
-            'Huyền Huyễn',
-            'Dị Giới',
-            'Dị Năng',
-            'Quân Sự',
-            'Lịch Sử',
-            'Xuyên Không',
-            'Xuyên Nhanh',
-            'Trọng Sinh',
-            'Trinh Thám',
-            'Thám Hiểm',
-            'Linh Dị',
-            'Ngược',
-            'Sủng',
-            'Cung Đấu',
-            'Nữ Cường',
-            'Gia Đấu',
-            'Đông Phương',
-            'Đô Thị',
-            'Bách Hợp',
-            'Hài Hước',
-            'Điền Văn',
-            'Cổ Đại',
-            'Mạt Thế',
-            'Truyện Teen',
-            'Phương Tây',
-            'Nữ Phụ',
-            'Light Novel',
-            'Việt Nam',
-            'Đoản Văn',
-            'Khác',
-        ]
-        setCategory(data);
+        const fetchSources = async () => {
+            try {
+                const result = await sourceAPI.getAllSources();
+                console.log(result)
+                return result.data
+              } catch (error) {
+                console.error('Error fetching categories:', error);
+              }
+        };
+
+        const fetchCategories = async (source) => {
+            try {
+              const result = await categoryAPI.getAllCategories({source});
+              setCategory(result.data.categories);
+            } catch (error) {
+              console.error('Error fetching categories:', error);
+            }
+        };
+        
+        const fetchData = async () => {
+            const sources = await fetchSources();
+            await fetchCategories(sources);
+        };
+      
+        fetchData();
     }, []);
 
     return (
