@@ -34,11 +34,15 @@ const Category = () => {
         setShowCategory(!showCategory);
     };
 
+    function capitalizeFirstLetter(string) {
+        if (!string) return string; // Handle empty or undefined strings
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    };
+
     useEffect(() => {
         const fetchSources = async () => {
             try {
                 const result = await sourceAPI.getAllSources();
-                console.log(result)
                 return result.data
               } catch (error) {
                 console.error('Error fetching categories:', error);
@@ -46,17 +50,22 @@ const Category = () => {
         };
 
         const fetchCategories = async (source) => {
-            try {
-              const result = await categoryAPI.getAllCategories({source});
-              setCategory(result.data.categories);
-            } catch (error) {
-              console.error('Error fetching categories:', error);
+            if (source){
+                try {
+                    const result = await categoryAPI.getAllCategories({source});
+                    const capitalizedCategories = result?.data?.categories?.map(category => capitalizeFirstLetter(category));
+                    setCategory(capitalizedCategories);
+                } catch (error) {
+                    console.error('Error fetching categories:', error);
+                }
             }
         };
         
         const fetchData = async () => {
             const sources = await fetchSources();
-            await fetchCategories(sources);
+            if (sources){
+                await fetchCategories(sources);
+            }
         };
       
         fetchData();

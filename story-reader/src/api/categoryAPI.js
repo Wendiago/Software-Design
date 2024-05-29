@@ -3,7 +3,6 @@ import customAxios from "./customAPI";
 class categoryAPI {
     async getAllCategories({ source }) {
         try {
-          console.log(source)
           const response = await customAxios.post(`/categories`, source);
           return response.data;
         } catch (error) {

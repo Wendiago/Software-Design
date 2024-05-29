@@ -40,7 +40,6 @@ const TruyenCungTacGia = ({ stories }) => {
   const navigate = useNavigate();
 
   const handleStory = (storyName) => {
-    console.log(storyName);
     navigate(`/gioi-thieu/${normalizeString(storyName)}`);
   };
 

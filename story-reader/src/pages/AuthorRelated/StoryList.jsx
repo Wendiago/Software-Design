@@ -71,7 +71,7 @@ const StoryList = ({ stories }) => {
   };
 
   const handleReadStory = (storyName, chapterNumber) => {
-    navigate(`/doc-truyen/${normalizeString(storyName)}/chuong-${chapterNumber}`);
+    navigate(`/doc-truyen/${normalizeString(storyName)}/${chapterNumber}`);
   };
 
   const paginatedStories = stories.slice(

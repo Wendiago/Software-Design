@@ -49,7 +49,6 @@ const Setting = ({ selectedTheme, toggleTheme }) => {
         setFontSize(newFontSize);
     
         localStorage.setItem('fontSize', newFontSize);
-        console.log(newFontSize)
     };
     
     return (

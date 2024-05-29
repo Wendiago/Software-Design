@@ -19,7 +19,6 @@ const Breadcrumb = ({ breadcrumbs }) => {
   const handleBreadcrumb = (breadcrumb) => {
     navigate(breadcrumb)
   };
-
   return (
     <Root className={classes.root}>
       <Breadcrumbs aria-label="breadcrumb">

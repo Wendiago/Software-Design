@@ -7,8 +7,8 @@ import {
   Homepage,
   Categories,
   SearchResult,
-  StoryIntroduction,
-  StoryReading,
+  NovelIntroduction,
+  NovelReading,
   AuthorRelated
 } from './pages';
 import './App.css';
@@ -62,10 +62,10 @@ function App() {
               }
             />
             <Route
-              path="/gioi-thieu/:id"
+              path="/gioi-thieu/:title"
               element={
                 <Container selectedTheme={selectedTheme} toggleTheme={toggleTheme} >
-                  <StoryIntroduction />
+                  <NovelIntroduction />
                 </Container>
               }
             />
@@ -78,10 +78,10 @@ function App() {
               }
             />
             <Route
-              path="/doc-truyen/:id/:chapter"
+              path="/doc-truyen/:title/:chapter"
               element={
                 <Container selectedTheme={selectedTheme} toggleTheme={toggleTheme} >
-                  <StoryReading />
+                  <NovelReading />
                 </Container>
               }
             />

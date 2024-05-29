@@ -8,6 +8,7 @@ const customAxios = axios.create({
   },
 });
 
+customAxios.defaults.withCredentials = true;
 
 customAxios.interceptors.request.use(
   function (config) {
