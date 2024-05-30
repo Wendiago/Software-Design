@@ -17,8 +17,7 @@ import java.util.List;
 @Service
 public class Truyencv_ScrapingService implements IScrapingServiceStrategy {
     @Autowired
-    private static StringManipulator stringManipulator;
-
+    private StringManipulator stringManipulator;
 
     private static int getTotalPages(Document document){
         Elements pageLinks = document.getElementsByClass("flex mx-auto border border-solid border-[#dddddd] max-w-max items-center mt-[20px]");
@@ -211,6 +210,27 @@ public class Truyencv_ScrapingService implements IScrapingServiceStrategy {
             return CategoriesResponse.builder()
                     .categories(categoryList)
                     .build();
+        }
+        catch(Exception e){
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    @Override
+    public SearchResponse getSearchResult(String keyword, int page) throws Exception{
+        String url = "https://truyenfull.vn/tim-kiem/?tukhoa=" + keyword;
+        try {
+            // Send an HTTP GET request to the website
+            Document document = Jsoup.connect(url).get();
+
+
+            Elements categoryListElements = document.select("ul.control.navbar-nav div.dropdown-menu.multi-column ul.dropdown-menu li");
+
+            List<String> categoryList = new ArrayList<>();
+            for (Element categoryElement : categoryListElements){
+                categoryList.add(categoryElement.select("a").text());
+            }
+            return SearchResponse.builder().build();
         }
         catch(Exception e){
             throw new Exception(e.getMessage());

@@ -33,6 +33,7 @@ public class ScrapingServiceFactory {
                 String beanName = entry.getKey();
                 IScrapingServiceStrategy strategy = entry.getValue();
                 registerScrapingStrategy(beanName, strategy);
+                log.info("Get strategy {}", strategy);
             }
         }
         catch (Exception e){

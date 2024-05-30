@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -24,6 +25,7 @@ public class SourceController {
     public ResponseEntity<?> getSources(){
         try{
             List<String> sources = scrapingFactory.getAvailableSources();
+            Collections.reverse(sources);
             return ResponseEntity.ok(GetSourcesResponse.builder()
                     .status("Success")
                     .message(MessageKeys.GET_SOURCES_SUCCESSFULLY)

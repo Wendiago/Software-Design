@@ -12,8 +12,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.print.Doc;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -21,28 +25,58 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
     @Autowired
     private StringManipulator stringManipulator;
     private static final Logger log = LoggerFactory.getLogger(Truyenfull_ScrapingService.class);
-    public static void main (String []arg) throws Exception {
-        String title = "linh-vu-thien-ha";
-        int chapterNumber = 12;
-        String url = "https://truyenfull.vn/" + title + "/chuong-"
-                + Integer.toString(chapterNumber);
+
+    public static void main(String[] arg) throws Exception {
+        String keyword = "loan";
+        String url = "https://truyenfull.vn/tim-kiem/?tukhoa=" + keyword;
         try {
-            // Send an HTTP GET request to the website
             Document document = Jsoup.connect(url).get();
-            String content = document.select("#chapter-c.chapter-c").text();
-            NovelChapterContentResponse res = NovelChapterContentResponse.builder()
-                    .title(title)
-                    .chapterNumber(chapterNumber)
-                    .content(content)
-                    .build();
-            System.out.println(res);
-        }
-        catch(Exception e){
+
+            //Get total pages
+            Elements lastPageElements = document.select("ul.pagination li:last-child a");
+            int totalPages = 1;
+            //If there is only 1 page
+            if (lastPageElements.isEmpty()) {
+                //
+            } else {
+                String lastPageUrl = lastPageElements.attr("href");
+                URI uri = new URI(lastPageUrl);
+                String query = uri.getQuery();
+                String[] params = query.split("&");
+                totalPages = Arrays.stream(params)
+                        .filter(param -> param.startsWith("page="))
+                        .map(param -> param.split("=")[1])
+                        .mapToInt(Integer::parseInt)
+                        .findFirst()
+                        .orElse(1);
+
+                //Get novels
+                List<NovelByCatDTO> novelList = new ArrayList<>();
+                //Get each page
+                Document novelListDoc = Jsoup.connect(url + "&page=" + Integer.toString(1)).get();
+                Elements novelListElements = novelListDoc
+                        .select("div.list-truyen div.row[itemtype=\"https://schema.org/Book\"]");
+                //System.out.println(novelListElements);
+                for (Element novel : novelListElements){
+                    String image = novel.select("div[data-classname=\"cover\"]").attr("data-image");
+                    String title = novel.select(".truyen-title").text();
+                    String author = novel.select(".author").text();
+                    NovelByCatDTO novelItem = NovelByCatDTO.builder()
+                            .title(title)
+                            .imageUrl(image)
+                            .author(author)
+                            .build();
+                    novelList.add(novelItem);
+                }
+                System.out.println(novelList);
+            }
+
+        } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
     }
 
-    private static int getTotalPages(Document document){
+    private static int getTotalPages(Document document) {
         Elements pageLinks = document.select("ul.pagination.pagination-sm > li:not(.dropup.page-nav)");
         Element lastPageElement = pageLinks.last();
         if (lastPageElement != null) {
@@ -51,6 +85,7 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
         }
         return 1; // Default to 1 page if unable to determine total pages
     }
+
     private static int extractPageNumber(String url) {
         // Extract the page number from the URL
         String pageNumberString = url.substring(url.lastIndexOf("-") + 1, url.lastIndexOf("/"));
@@ -73,7 +108,7 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
 
     //Get novels by category
     @Override
-    public NovelByCatResponse getNovelsByCategory(String category, int page) throws Exception{
+    public NovelByCatResponse getNovelsByCategory(String category, int page) throws Exception {
         //Normalize category string if necessary
         String normalizedCategory = stringManipulator.modify(category);
 
@@ -87,7 +122,7 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
             totalPages = getTotalPages(document);
 
             //Extract novels list
-            List<NovelByCatDTO> novelByCat =  extractNovelsFromPage(document);
+            List<NovelByCatDTO> novelByCat = extractNovelsFromPage(document);
 
             return NovelByCatResponse.builder()
                     .novels(novelByCat)
@@ -123,8 +158,8 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
             Elements genreElements = infoElements.select("div.info div:has(h3:contains(Thể loại)) a");
 
             StringBuilder genres = new StringBuilder();
-            for (Element genreElement : genreElements){
-                if (!genres.isEmpty()){
+            for (Element genreElement : genreElements) {
+                if (!genres.isEmpty()) {
                     genres.append(", ");
                 }
                 genres.append(genreElement.attr("title"));
@@ -151,16 +186,16 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
                     .rating(rating)
                     .description(description)
                     .build();
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
     }
 
     //Get novel chapter list
     @Override
-    public NovelChapterListResponse getNovelChapterList(String novelTitle, int page) throws Exception{
-        String url = "https://truyenfull.vn/" + stringManipulator.modify(novelTitle) + "/trang-" + Integer.toString(page);
+    public NovelChapterListResponse getNovelChapterList(String novelTitle, int page) throws Exception {
+        String url = "https://truyenfull.vn/" + stringManipulator.modify(novelTitle)
+                + "/trang-" + Integer.toString(page);
         try {
             // Send an HTTP GET request to the website
             Document document = Jsoup.connect(url).get();
@@ -173,25 +208,33 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
 
             List<String> chapterList = new ArrayList<>();
 
-            for (Element chapterListElement : chapterListElements){
+            for (Element chapterListElement : chapterListElements) {
                 chapterList.add(chapterListElement.select("a").text());
             }
+
+            //Get total chapters
+            String getTotalChapter_url = "https://truyenfull.vn/" + stringManipulator.modify(novelTitle)
+                    + "/trang-" + totalPages;
+            Document getTotalChapter_doc = Jsoup.connect(getTotalChapter_url).get();
+            String totalChaptersURL = getTotalChapter_doc.select("ul.list-chapter li:last-child a").attr("href");
+            int lastIndex = totalChaptersURL.lastIndexOf("/chuong-");
+            String totalChaptersStr = totalChaptersURL.substring(lastIndex + "/chuong-".length(), totalChaptersURL.length() - 1);
 
             return NovelChapterListResponse.builder()
                     .novelTitle(novelTitle)
                     .chapterList(chapterList)
+                    .totalChapters(Integer.parseInt(totalChaptersStr))
                     .currentPage(page)
                     .totalPages(Integer.parseInt(totalPages))
                     .build();
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
     }
 
     //Get chapter content
     @Override
-    public NovelChapterContentResponse getNovelChapterContent(String title, int chapterNumber) throws Exception{
+    public NovelChapterContentResponse getNovelChapterContent(String title, int chapterNumber) throws Exception {
         String url = "https://truyenfull.vn/" + stringManipulator.modify(title) + "/chuong-"
                 + Integer.toString(chapterNumber);
         log.info("Constructed URL: {}", url);
@@ -199,14 +242,15 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
             // Send an HTTP GET request to the website
             Document document = Jsoup.connect(url).get();
             String content = document.select("#chapter-c.chapter-c").text();
+            String chapterTitle = document.select("a.chapter-title").text();
             log.info("Get chapter content {}", content);
             return NovelChapterContentResponse.builder()
                     .title(title)
                     .chapterNumber(chapterNumber)
+                    .chapterTitle(chapterTitle)
                     .content(content)
                     .build();
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
     }
@@ -214,7 +258,7 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
 
     //Get all categories
     @Override
-    public CategoriesResponse getCategories() throws Exception{
+    public CategoriesResponse getCategories() throws Exception {
         String url = "https://truyenfull.vn";
         try {
             // Send an HTTP GET request to the website
@@ -223,14 +267,93 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
             Elements categoryListElements = document.select("ul.control.navbar-nav div.dropdown-menu.multi-column ul.dropdown-menu li");
 
             List<String> categoryList = new ArrayList<>();
-            for (Element categoryElement : categoryListElements){
+            for (Element categoryElement : categoryListElements) {
                 categoryList.add(categoryElement.select("a").text());
             }
             return CategoriesResponse.builder()
                     .categories(categoryList)
                     .build();
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
         }
-        catch(Exception e){
+    }
+
+    //Get search results
+    @Override
+    public SearchResponse getSearchResult(String keyword, int page) throws Exception {
+        String url = "https://truyenfull.vn/tim-kiem/?tukhoa=" + keyword;
+        try {
+            Document document = Jsoup.connect(url).get();
+
+            //Get total pages
+            Elements lastPageElements = document.select("ul.pagination li:last-child a");
+            int totalPages = 1;
+            //If there is only 1 page
+            if (lastPageElements.isEmpty()) {
+                //Get novels
+                List<NovelByCatDTO> novelList = new ArrayList<>();
+                //Get each page
+                Document novelListDoc = Jsoup.connect(url ).get();
+                Elements novelListElements = novelListDoc
+                        .select("div.list-truyen div.row[itemtype=\"https://schema.org/Book\"]");
+                for (Element novel : novelListElements){
+                    String image = novel.select("div[data-classname=\"cover\"]").attr("data-image");
+                    String title = novel.select(".truyen-title").text();
+                    String author = novel.select(".author").text();
+                    NovelByCatDTO novelItem = NovelByCatDTO.builder()
+                            .title(title)
+                            .imageUrl(image)
+                            .author(author)
+                            .build();
+                    novelList.add(novelItem);
+                }
+                return SearchResponse.builder()
+                        .novels(novelList)
+                        .currentPage(page)
+                        .totalPages(totalPages)
+                        .build();
+            } else {
+                String lastPageUrl = lastPageElements.attr("href");
+                URI uri = new URI(lastPageUrl);
+                String query = uri.getQuery();
+                String[] params = query.split("&");
+                totalPages = Arrays.stream(params)
+                        .filter(param -> param.startsWith("page="))
+                        .map(param -> param.split("=")[1])
+                        .mapToInt(Integer::parseInt)
+                        .findFirst()
+                        .orElse(1);
+
+                //If page request exceeds total pages
+                if (totalPages < page){
+                    page = totalPages;
+                }
+
+                //Get novels
+                List<NovelByCatDTO> novelList = new ArrayList<>();
+                //Get each page
+                Document novelListDoc = Jsoup.connect(url + "&page=" + Integer.toString(page)).get();
+                Elements novelListElements = novelListDoc
+                        .select("div.list-truyen div.row[itemtype=\"https://schema.org/Book\"]");
+                //System.out.println(novelListElements);
+                for (Element novel : novelListElements){
+                    String image = novel.select("div[data-classname=\"cover\"]").attr("data-image");
+                    String title = novel.select(".truyen-title").text();
+                    String author = novel.select(".author").text();
+                    NovelByCatDTO novelItem = NovelByCatDTO.builder()
+                            .title(title)
+                            .imageUrl(image)
+                            .author(author)
+                            .build();
+                    novelList.add(novelItem);
+                }
+                return SearchResponse.builder()
+                        .novels(novelList)
+                        .currentPage(page)
+                        .totalPages(totalPages)
+                        .build();
+            }
+        } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
     }

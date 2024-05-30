@@ -1,5 +1,6 @@
 package com.example.demo.response;
 
+import com.example.demo.dto.NovelByCatDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,18 +10,12 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class NovelChapterListResponse {
-    @JsonProperty("title")
-    private String novelTitle;
-
-    @JsonProperty("chapters")
-    private List<String> chapterList;
-
-    @JsonProperty("total_chapters")
-    private int totalChapters;
+public class SearchResponse {
+    @JsonProperty("novels")
+    private List<NovelByCatDTO> novels;
 
     @JsonProperty("total_pages")
     private int totalPages;
