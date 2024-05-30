@@ -7,6 +7,8 @@ import com.example.demo.utils.StringManipulator;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +59,7 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
                 Elements novelListElements = novelListDoc
                         .select("div.list-truyen div.row[itemtype=\"https://schema.org/Book\"]");
                 //System.out.println(novelListElements);
-                for (Element novel : novelListElements){
+                for (Element novel : novelListElements) {
                     String image = novel.select("div[data-classname=\"cover\"]").attr("data-image");
                     String title = novel.select(".truyen-title").text();
                     String author = novel.select(".author").text();
@@ -241,9 +243,21 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
         try {
             // Send an HTTP GET request to the website
             Document document = Jsoup.connect(url).get();
-            String content = document.select("#chapter-c.chapter-c").text();
+            Element chapterC = document.select("#chapter-c.chapter-c").first();
+
+
+            StringBuilder textContent = new StringBuilder();
+            assert chapterC != null;
+            for (Node childNode : chapterC.childNodes()) {
+                if (childNode instanceof TextNode) {
+                    textContent.append(((TextNode) childNode).text());
+                } else if (childNode.nodeName().equals("br")) {
+                    textContent.append("<br>");
+                }
+            }
+            String content = textContent.toString().trim();
             String chapterTitle = document.select("a.chapter-title").text();
-            log.info("Get chapter content {}", content);
+            log.info("Get chapter content {}", textContent);
             return NovelChapterContentResponse.builder()
                     .title(title)
                     .chapterNumber(chapterNumber)
@@ -293,10 +307,10 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
                 //Get novels
                 List<NovelByCatDTO> novelList = new ArrayList<>();
                 //Get each page
-                Document novelListDoc = Jsoup.connect(url ).get();
+                Document novelListDoc = Jsoup.connect(url).get();
                 Elements novelListElements = novelListDoc
                         .select("div.list-truyen div.row[itemtype=\"https://schema.org/Book\"]");
-                for (Element novel : novelListElements){
+                for (Element novel : novelListElements) {
                     String image = novel.select("div[data-classname=\"cover\"]").attr("data-image");
                     String title = novel.select(".truyen-title").text();
                     String author = novel.select(".author").text();
@@ -325,7 +339,7 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
                         .orElse(1);
 
                 //If page request exceeds total pages
-                if (totalPages < page){
+                if (totalPages < page) {
                     page = totalPages;
                 }
 
@@ -336,7 +350,7 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
                 Elements novelListElements = novelListDoc
                         .select("div.list-truyen div.row[itemtype=\"https://schema.org/Book\"]");
                 //System.out.println(novelListElements);
-                for (Element novel : novelListElements){
+                for (Element novel : novelListElements) {
                     String image = novel.select("div[data-classname=\"cover\"]").attr("data-image");
                     String title = novel.select(".truyen-title").text();
                     String author = novel.select(".author").text();
