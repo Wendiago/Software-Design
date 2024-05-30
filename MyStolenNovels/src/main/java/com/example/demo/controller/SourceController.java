@@ -1,7 +1,8 @@
 package com.example.demo.controller;
 
 import com.example.demo.factory.ScrapingServiceFactory;
-import com.example.demo.response.GET.GetSourcesResponse;
+import com.example.demo.response.BaseResponse;
+import com.example.demo.response.SearchResponse;
 import com.example.demo.utils.MessageKeys;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -26,17 +27,17 @@ public class SourceController {
         try{
             List<String> sources = scrapingFactory.getAvailableSources();
             Collections.reverse(sources);
-            return ResponseEntity.ok(GetSourcesResponse.builder()
+            return ResponseEntity.ok(BaseResponse.<List<String>>builder()
                     .status("Success")
                     .message(MessageKeys.GET_SOURCES_SUCCESSFULLY)
                     .status_code(HttpStatus.OK.value())
-                    .sources(sources)
+                    .data(sources)
                     .build());
         }
         catch(Exception e){
             log.error("Error fetching sources");
             return ResponseEntity.badRequest().body(
-                    GetSourcesResponse.builder()
+                    BaseResponse.<List<String>>builder()
                             .status("Failed")
                             .message(e.getMessage())
                             .status_code(HttpStatus.INTERNAL_SERVER_ERROR.value())
