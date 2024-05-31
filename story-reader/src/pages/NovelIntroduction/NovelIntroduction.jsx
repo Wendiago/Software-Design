@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Container, Grid, useMediaQuery, useTheme } from '@mui/material';
 import NovelInfo from './NovelInfo';
 import ChapterList from './ChapterList';
-import SidebarNav from './SidebarNav';
-import { Breadcrumb } from '../../components';
+import AuthorBar from './AuthorBar';
+import { Breadcrumb, Loading } from '../../components';
 import { styled } from '@mui/material/styles';
 import { novelAPI, sourceAPI } from '../../api';
 import { useParams } from 'react-router-dom';
@@ -34,7 +34,7 @@ const Root = styled('div')(({ theme }) => ({
 
 const NovelIntroduction = () => {
   const { title } = useParams();
-  const [novel, setNovel] = useState([]);
+  const [novel, setNovel] = useState(null);
   const [sources, setSources] = useState([]);
   const [breadcrumbs, setBreadcrumbs] = useState([]);
 
@@ -53,7 +53,6 @@ const NovelIntroduction = () => {
       if (source) {
         try {
           const result = await novelAPI.getNovelDetail({ title, source });
-          console.log(result.data);
           setNovel(result.data);
           setBreadcrumbs([
             {
@@ -80,6 +79,12 @@ const NovelIntroduction = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
+  if (!novel){
+    return (
+      <Loading/>
+    )
+  }
+  
   return (
     <Root className={classes.root}>
       <Container>
@@ -99,7 +104,7 @@ const NovelIntroduction = () => {
               <ChapterList title={title} source={sources} />
             </Grid>
             <Grid item className={classes.sidebar}>
-              <SidebarNav />
+              <AuthorBar title={novel.title} author={novel.author} source={sources} />
             </Grid>
           </Grid>
         )}

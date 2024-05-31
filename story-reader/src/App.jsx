@@ -54,7 +54,7 @@ function App() {
               }
             />
             <Route
-              path="/tim-kiem/:searchvalue"
+              path="/tim-kiem/:keyword"
               element={
                 <Container selectedTheme={selectedTheme} toggleTheme={toggleTheme} >
                   <SearchResult />
@@ -70,7 +70,7 @@ function App() {
               }
             />
             <Route
-              path="/tac-gia/:name"
+              path="/tac-gia/:author"
               element={
                 <Container selectedTheme={selectedTheme} toggleTheme={toggleTheme} >
                   <AuthorRelated />

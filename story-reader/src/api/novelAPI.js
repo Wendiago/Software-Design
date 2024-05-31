@@ -19,16 +19,23 @@ class novelAPI {
       }
   }
 
-  async getNovelChapter({ title, chapterNumber, source}) {
+  async getNovelChapterContent({ title, chapterNumber, source}) {
     try {
-      console.log(chapterNumber)
       const response = await customAxios.post(`/${title}/${chapterNumber}`, source);
-      console.log(`/${title}/${chapterNumber}`, source)
       return response.data;
     } catch (error) {
       return error.response;
     }
   }
+
+  async searchNovel({ keyword, pageNumber, source}) {
+    try {
+      const response = await customAxios.post(`/search?keyword=${keyword}&page=${pageNumber}`, source);
+      return response.data;
+    } catch (error) {
+      return error.response;
+    }
+  } 
 }
 
 export default new novelAPI();

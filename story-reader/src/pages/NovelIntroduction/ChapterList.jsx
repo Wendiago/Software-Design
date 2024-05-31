@@ -4,6 +4,7 @@ import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import { normalizeString } from '../../utils/stringUtils';
 import { novelAPI } from '../../api';
+import { Loading } from '../../components';
 
 const PREFIX = 'ChapterList';
 const classes = {
@@ -41,7 +42,7 @@ const Root = styled('div')(({ theme }) => ({
 const ChapterList = ({ title, source }) => {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
-  const [chapters, setChapters] = useState([]);
+  const [chapters, setChapters] = useState(null);
   const [totalPage, setTotalPage] = useState(1);
   const chaptersPerPage = 50;
 
@@ -79,6 +80,12 @@ const ChapterList = ({ title, source }) => {
   };
 
   const [leftChapters, rightChapters] = splitChapters();
+
+  if (!chapters){
+    return (
+      <Loading/>
+    )
+  }
 
   return (
     <Root>

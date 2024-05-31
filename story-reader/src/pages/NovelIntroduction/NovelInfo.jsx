@@ -68,7 +68,6 @@ const NovelInfo = ({ novel }) => {
   const shortDescription = novel.description?.split('.').slice(0, 3).join('. ') + '...';
   const genresList = novel.genres?.split(', ');
 
-  console.log(genresList)
   return (
     <Root>
       <Paper className={classes.paper}>

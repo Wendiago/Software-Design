@@ -1,13 +1,14 @@
-import React from 'react';
-import { Container } from '@mui/material';
-import { Breadcrumb } from '../../components';
-import StoryList from './StoryList';
+import React, { useState, useEffect } from 'react';
+import { Container, Pagination } from '@mui/material';
+import { Breadcrumb, NovelList, Loading } from '../../components';
 import { styled } from '@mui/material/styles';
-import { normalizeString } from '../../utils/stringUtils';
+import { sourceAPI, novelAPI } from '../../api';
+import { useParams } from 'react-router-dom';
 
 const PREFIX = 'AuthorRelated';
 const classes = {
   root: `${PREFIX}-root`,
+  pagination: `${PREFIX}-pagination`,
 };
 
 const Root = styled('div')(({ theme }) => ({
@@ -17,81 +18,82 @@ const Root = styled('div')(({ theme }) => ({
     color: theme.palette.text.primary,
     minHeight: '100vh',
   },
+  [`& .${classes.pagination}`]: {
+    display: 'flex',
+    justifyContent: 'center',
+    padding: theme.spacing(2, 0),
+  },
 }));
 
 const AuthorRelated = () => {
-  const author = 'Tích Tiểu Tặc'
-  const stories = [
-    {
-        title: 'Ngạo Thế Đan Thần',
-        author: author,
-        imageUrl: 'https://lh3.googleusercontent.com/pw/AJFCJaVjuIBFnTKQ5soBnZlRWVtCxD3sg1ILwmCHYgnNBJtHdpQlmtRRAJm28EmxtxPtR3UE8bxLUMLsf_PCPFivFFj_YYYnnkXgbjPUyBdCzx1TaicW3dK17dpLz7pSoYMq0muNmrmYxWjTwey3ThHPBdgt=w215-h322-s-no?authuser=0',
-        status: 'Full',
-        isHot: true,
-        chapters: 3808,
-    },
-    {
-        title: 'Nàng Không Muốn Làm Hoàng Hậu',
-        author: author,
-        imageUrl: 'https://lh3.googleusercontent.com/pw/AJFCJaVjuIBFnTKQ5soBnZlRWVtCxD3sg1ILwmCHYgnNBJtHdpQlmtRRAJm28EmxtxPtR3UE8bxLUMLsf_PCPFivFFj_YYYnnkXgbjPUyBdCzx1TaicW3dK17dpLz7pSoYMq0muNmrmYxWjTwey3ThHPBdgt=w215-h322-s-no?authuser=0',
-        status: 'Full',
-        isHot: true,
-        chapters: 3808,
-    },
-    {
-        title: 'Nàng Không Muốn Làm Hoàng Hậu',
-        author: author,
-        imageUrl: 'https://lh3.googleusercontent.com/pw/AJFCJaVjuIBFnTKQ5soBnZlRWVtCxD3sg1ILwmCHYgnNBJtHdpQlmtRRAJm28EmxtxPtR3UE8bxLUMLsf_PCPFivFFj_YYYnnkXgbjPUyBdCzx1TaicW3dK17dpLz7pSoYMq0muNmrmYxWjTwey3ThHPBdgt=w215-h322-s-no?authuser=0',
-        status: 'Full',
-        isHot: true,
-        chapters: 3808,
-    },
-    {
-        title: 'Nàng Không Muốn Làm Hoàng Hậu',
-        author: author,
-        imageUrl: 'https://lh3.googleusercontent.com/pw/AJFCJaVjuIBFnTKQ5soBnZlRWVtCxD3sg1ILwmCHYgnNBJtHdpQlmtRRAJm28EmxtxPtR3UE8bxLUMLsf_PCPFivFFj_YYYnnkXgbjPUyBdCzx1TaicW3dK17dpLz7pSoYMq0muNmrmYxWjTwey3ThHPBdgt=w215-h322-s-no?authuser=0',
-        status: 'Full',
-        isHot: true,
-        chapters: 3808,
-    },
-    {
-        title: 'Nàng Không Muốn Làm Hoàng Hậu',
-        author: author,
-        imageUrl: 'https://lh3.googleusercontent.com/pw/AJFCJaVjuIBFnTKQ5soBnZlRWVtCxD3sg1ILwmCHYgnNBJtHdpQlmtRRAJm28EmxtxPtR3UE8bxLUMLsf_PCPFivFFj_YYYnnkXgbjPUyBdCzx1TaicW3dK17dpLz7pSoYMq0muNmrmYxWjTwey3ThHPBdgt=w215-h322-s-no?authuser=0',
-        status: 'Full',
-        isHot: true,
-        chapters: 3808,
-    },
-    {
-        title: 'Nàng Không Muốn Làm Hoàng Hậu',
-        author: author,
-        imageUrl: 'https://lh3.googleusercontent.com/pw/AJFCJaVjuIBFnTKQ5soBnZlRWVtCxD3sg1ILwmCHYgnNBJtHdpQlmtRRAJm28EmxtxPtR3UE8bxLUMLsf_PCPFivFFj_YYYnnkXgbjPUyBdCzx1TaicW3dK17dpLz7pSoYMq0muNmrmYxWjTwey3ThHPBdgt=w215-h322-s-no?authuser=0',
-        status: 'Full',
-        isHot: true,
-        chapters: 3808,
-    },
-    {
-        title: 'Nàng Không Muốn Làm Hoàng Hậu',
-        author: author,
-        imageUrl: 'https://lh3.googleusercontent.com/pw/AJFCJaVjuIBFnTKQ5soBnZlRWVtCxD3sg1ILwmCHYgnNBJtHdpQlmtRRAJm28EmxtxPtR3UE8bxLUMLsf_PCPFivFFj_YYYnnkXgbjPUyBdCzx1TaicW3dK17dpLz7pSoYMq0muNmrmYxWjTwey3ThHPBdgt=w215-h322-s-no?authuser=0',
-        status: 'Full',
-        isHot: true,
-        chapters: 3808,
-    },
-  ];
+  const { author } = useParams();
+  const [page, setPage] = useState(1);
+  const [novels, setNovels] = useState(null);
+  const [breadcrumbs, setBreadcrumbs] = useState([]);
+  const [totalPage, setTotalPage] = useState(1);
 
-  const breadcrumbs = [
-    {
-        name: author,
-        link: `/tac-gia/${normalizeString(author)}`
-    }
-  ]
+  const handlePageChange = (event, value) => {
+    setPage(value);
+  }
+
+  useEffect(() => {
+    const fetchSources = async () => {
+      try {
+        const result = await sourceAPI.getAllSources();
+        return result.data;
+      } catch (error) {
+        console.error('Error fetching sources:', error);
+      }
+    };
+
+    const fetchNovelList = async (source) => {
+      if (author && source) {
+        try {
+          const result = await novelAPI.searchNovel({ keyword: author, pageNumber: page, source });
+          setNovels(result.data.novels);
+          setBreadcrumbs([
+            {
+              name: result.data.novels[0].author,
+              link: `/tac-gia/${author}`
+            },
+          ]);
+          setTotalPage(result.data.total_pages);
+        } catch (error) {
+          console.error('Error fetching novel detail:', error);
+        }
+      }
+    };
+
+    const fetchData = async () => {
+      const result = await fetchSources();
+      if (result) {
+        await fetchNovelList(result);
+      }
+    };
+
+    fetchData();
+  }, [author, page]);
+
+  if (!novels){
+    return (
+      <Loading/>
+    )
+  }
 
   return (
     <Root className={classes.root}>
       <Container>
         <Breadcrumb breadcrumbs={breadcrumbs}/>
-        <StoryList stories={stories} />
+        <NovelList novels={novels}/>
+        <div className={classes.pagination}>
+          <Pagination
+            count={totalPage}
+            page={page}
+            onChange={handlePageChange}
+            showFirstButton
+            showLastButton
+          />
+        </div>
       </Container>
     </Root>
   );

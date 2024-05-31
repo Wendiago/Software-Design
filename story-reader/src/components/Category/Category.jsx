@@ -33,12 +33,7 @@ const Category = () => {
         setAnchorEl(null);
         setShowCategory(!showCategory);
     };
-
-    function capitalizeFirstLetter(string) {
-        if (!string) return string; // Handle empty or undefined strings
-        return string.charAt(0).toUpperCase() + string.slice(1);
-    };
-
+    
     useEffect(() => {
         const fetchSources = async () => {
             try {
@@ -53,7 +48,7 @@ const Category = () => {
             if (source){
                 try {
                     const result = await categoryAPI.getAllCategories({source});
-                    const capitalizedCategories = result?.data?.categories?.map(category => capitalizeFirstLetter(category));
+                    const capitalizedCategories = result?.data?.categories;
                     setCategory(capitalizedCategories);
                 } catch (error) {
                     console.error('Error fetching categories:', error);
