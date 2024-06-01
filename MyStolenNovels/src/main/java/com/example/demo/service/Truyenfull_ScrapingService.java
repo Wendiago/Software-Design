@@ -18,9 +18,13 @@ import org.springframework.stereotype.Service;
 import javax.print.Doc;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
@@ -238,7 +242,7 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
     @Override
     public NovelChapterContentResponse getNovelChapterContent(String title, int chapterNumber) throws Exception {
         String url = "https://truyenfull.vn/" + stringManipulator.modify(title) + "/chuong-"
-                + Integer.toString(chapterNumber);
+                + Integer.toString(chapterNumber) + "/";
         log.info("Constructed URL: {}", url);
         try {
             // Send an HTTP GET request to the website
@@ -292,75 +296,82 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
         }
     }
 
+    private List<NovelByCatDTO> getNovelsFromPage(String url) throws IOException {
+        List<NovelByCatDTO> novelList = new ArrayList<>();
+        Document novelListDoc = Jsoup.connect(url).get();
+        Elements novelListElements = novelListDoc.select("div.list-truyen div.row[itemtype=\"https://schema.org/Book\"]");
+
+        for (Element novel : novelListElements) {
+            String image = novel.select("div[data-classname=\"cover\"]").attr("data-image");
+            String title = novel.select(".truyen-title").text();
+            String author = novel.select(".author").text();
+
+            // Get status tags
+            Elements hotLabel = novel.select(".label-hot");
+            Elements fullLabel = novel.select(".label-full");
+            List<String> statusList = new ArrayList<>();
+            if (!hotLabel.isEmpty()) {
+                statusList.add("Hot");
+            }
+            if (!fullLabel.isEmpty()) {
+                statusList.add("Full");
+            }
+
+            // Get newest chapter
+            String newChapter = novel.select(".text-info").text();
+
+            NovelByCatDTO novelItem = NovelByCatDTO.builder()
+                    .title(title)
+                    .imageUrl(image)
+                    .author(author)
+                    .status(statusList)
+                    .newChapter(newChapter)
+                    .build();
+            novelList.add(novelItem);
+        }
+        return novelList;
+    }
+
     //Get search results
     @Override
     public SearchResponse getSearchResult(String keyword, int page) throws Exception {
+        //keyword = stringManipulator.urlEncode(keyword);
         String url = "https://truyenfull.vn/tim-kiem/?tukhoa=" + keyword;
+
         try {
             Document document = Jsoup.connect(url).get();
-
-            //Get total pages
-            Elements lastPageElements = document.select("ul.pagination li:last-child a");
+            // Get total pages
+            Elements pageElements = document.select("ul.pagination li:not(.dropup)");
+            log.info("Last page Element: {}", pageElements);
             int totalPages = 1;
-            //If there is only 1 page
-            if (lastPageElements.isEmpty()) {
-                //Get novels
-                List<NovelByCatDTO> novelList = new ArrayList<>();
-                //Get each page
-                Document novelListDoc = Jsoup.connect(url).get();
-                Elements novelListElements = novelListDoc
-                        .select("div.list-truyen div.row[itemtype=\"https://schema.org/Book\"]");
-                for (Element novel : novelListElements) {
-                    String image = novel.select("div[data-classname=\"cover\"]").attr("data-image");
-                    String title = novel.select(".truyen-title").text();
-                    String author = novel.select(".author").text();
-                    NovelByCatDTO novelItem = NovelByCatDTO.builder()
-                            .title(title)
-                            .imageUrl(image)
-                            .author(author)
-                            .build();
-                    novelList.add(novelItem);
-                }
+
+            // If there is only 1 page
+            if (pageElements.isEmpty()) {
+                List<NovelByCatDTO> novelList = getNovelsFromPage(url);
+                log.info(novelList.toString());
                 return SearchResponse.builder()
                         .novels(novelList)
                         .currentPage(page)
                         .totalPages(totalPages)
                         .build();
             } else {
-                String lastPageUrl = lastPageElements.attr("href");
-                URI uri = new URI(lastPageUrl);
-                String query = uri.getQuery();
-                String[] params = query.split("&");
-                totalPages = Arrays.stream(params)
-                        .filter(param -> param.startsWith("page="))
-                        .map(param -> param.split("=")[1])
-                        .mapToInt(Integer::parseInt)
-                        .findFirst()
-                        .orElse(1);
+                Element lastPageElement = pageElements.last();
+                assert lastPageElement != null;
+                String lastPageStr = lastPageElement.select("a").attr("title").trim();
+                log.info("Last Page Title Attribute: " + lastPageStr);
 
-                //If page request exceeds total pages
+                // Extract the last number from the string
+                Pattern pattern = Pattern.compile("(\\d+)$");
+                Matcher matcher = pattern.matcher(lastPageStr);
+                if (matcher.find()) {
+                    totalPages = Integer.parseInt(matcher.group(1));
+                }
+                // If page request exceeds total pages
                 if (totalPages < page) {
                     page = totalPages;
                 }
 
-                //Get novels
-                List<NovelByCatDTO> novelList = new ArrayList<>();
-                //Get each page
-                Document novelListDoc = Jsoup.connect(url + "&page=" + Integer.toString(page)).get();
-                Elements novelListElements = novelListDoc
-                        .select("div.list-truyen div.row[itemtype=\"https://schema.org/Book\"]");
-                //System.out.println(novelListElements);
-                for (Element novel : novelListElements) {
-                    String image = novel.select("div[data-classname=\"cover\"]").attr("data-image");
-                    String title = novel.select(".truyen-title").text();
-                    String author = novel.select(".author").text();
-                    NovelByCatDTO novelItem = NovelByCatDTO.builder()
-                            .title(title)
-                            .imageUrl(image)
-                            .author(author)
-                            .build();
-                    novelList.add(novelItem);
-                }
+                List<NovelByCatDTO> novelList = getNovelsFromPage(url + "&page=" + page);
                 return SearchResponse.builder()
                         .novels(novelList)
                         .currentPage(page)

@@ -4,6 +4,7 @@ import com.example.demo.factory.ScrapingServiceFactory;
 import com.example.demo.response.*;
 import com.example.demo.service.IScrapingServiceStrategy;
 import com.example.demo.utils.MessageKeys;
+import com.example.demo.utils.StringManipulator;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -193,7 +194,7 @@ public class NovelFetchingController {
                         .build()
                 );
             } catch (Exception e) {
-                log.error("Failed to get chapter content of novel from {}, {}", source, e.getMessage());
+                log.error("Failed to get search result from {}, {}", source, e.getMessage());
             }
         }
         return ResponseEntity.badRequest().body(
