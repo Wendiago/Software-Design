@@ -241,29 +241,35 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
     //Get chapter content
     @Override
     public NovelChapterContentResponse getNovelChapterContent(String title, int chapterNumber) throws Exception {
+        title = stringManipulator.modify(title);
         String url = "https://truyenfull.vn/" + stringManipulator.modify(title) + "/chuong-"
                 + Integer.toString(chapterNumber) + "/";
         log.info("Constructed URL: {}", url);
         try {
             // Send an HTTP GET request to the website
             Document document = Jsoup.connect(url).get();
+
+            // Select the target element
             Element chapterC = document.select("#chapter-c.chapter-c").first();
 
-
-            StringBuilder textContent = new StringBuilder();
-            assert chapterC != null;
-            for (Node childNode : chapterC.childNodes()) {
-                if (childNode instanceof TextNode) {
-                    textContent.append(((TextNode) childNode).text());
-                } else if (childNode.nodeName().equals("br")) {
-                    textContent.append("<br>");
-                }
+            if (chapterC == null) {
+                throw new Exception("Chapter content not found in the document.");
             }
-            String content = textContent.toString().trim();
+
+            // Remove the undesired elements
+            chapterC.select("div.ads-responsive").remove();
+
+            // Extract text content from child nodes
+            String content = extractTextContent(chapterC);
+
+            //Get title
+            String novelTitle = document.select(".truyen-title").text();
+
+            //Get chapter title
             String chapterTitle = document.select("a.chapter-title").text();
-            log.info("Get chapter content {}", textContent);
+            //log.info("Get chapter content {}", textContent);
             return NovelChapterContentResponse.builder()
-                    .title(title)
+                    .title(novelTitle)
                     .chapterNumber(chapterNumber)
                     .chapterTitle(chapterTitle)
                     .content(content)
@@ -273,6 +279,26 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
         }
     }
 
+    private static String extractTextContent(Node node) {
+        StringBuilder textContent = new StringBuilder();
+
+        for (Node childNode : node.childNodes()) {
+            if (childNode instanceof TextNode) {
+                // Append text nodes directly
+                textContent.append(((TextNode) childNode).text());
+            } else if (childNode instanceof Element) {
+                // Recursively extract text content from child elements
+                textContent.append(extractTextContent(childNode));
+            }
+            // Check if the current child node is a <br> tag
+            if (childNode.nodeName().equals("br")) {
+                // Append <br> tag
+                textContent.append("<br>");
+            }
+        }
+        //Remove backlashes and spaces
+        return textContent.toString().trim().replace("\\", "");
+    }
 
     //Get all categories
     @Override
@@ -296,7 +322,7 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
         }
     }
 
-    private List<NovelByCatDTO> getNovelsFromPage(String url) throws IOException {
+    private static List<NovelByCatDTO> getNovelsFromPage(String url) throws IOException {
         List<NovelByCatDTO> novelList = new ArrayList<>();
         Document novelListDoc = Jsoup.connect(url).get();
         Elements novelListElements = novelListDoc.select("div.list-truyen div.row[itemtype=\"https://schema.org/Book\"]");
@@ -335,7 +361,6 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
     //Get search results
     @Override
     public SearchResponse getSearchResult(String keyword, int page) throws Exception {
-        //keyword = stringManipulator.urlEncode(keyword);
         String url = "https://truyenfull.vn/tim-kiem/?tukhoa=" + keyword;
 
         try {

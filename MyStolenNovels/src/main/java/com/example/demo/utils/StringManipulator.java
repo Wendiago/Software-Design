@@ -8,9 +8,29 @@ import java.text.Normalizer;
 
 @Component
 public class StringManipulator {
-    public String modify(String source){
-        String normalizedStr = Normalizer.normalize(source, Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
-        return normalizedStr.replaceAll("\\s+", "-");
+    public String modify(String source) {
+        // Normalize the string and remove diacritical marks
+        String normalizedStr = Normalizer.normalize(source, Normalizer.Form.NFD);
+
+        // Replace Vietnamese-specific characters with their ASCII equivalents
+        String replacedStr = normalizedStr.replaceAll("[đĐ]", "d")
+                .replaceAll("[ăắằẳẵặĂẮẰẲẴẶ]", "a")
+                .replaceAll("[âấầẩẫậÂẤẦẨẪẬ]", "a")
+                .replaceAll("[êếềểễệÊẾỀỂỄỆ]", "e")
+                .replaceAll("[ôốồổỗộÔỐỒỔỖỘ]", "o")
+                .replaceAll("[ơớờởỡợƠỚỜỞỠỢ]", "o")
+                .replaceAll("[ưứừửữựƯỨỪỬỮỰ]", "u")
+                .replaceAll("[íìỉĩịÍÌỈĨỊ]", "i")
+                .replaceAll("[ýỳỷỹỵÝỲỶỸỴ]", "y")
+                .replaceAll("[óòỏõọÓÒỎÕỌ]", "o")
+                .replaceAll("[éèẻẽẹÉÈẺẼẸ]", "e")
+                .replaceAll("[úùủũụÚÙỦŨỤ]", "u");
+
+        // Remove all diacritical marks that were not specifically handled
+        replacedStr = replacedStr.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+
+        // Replace spaces with hyphens
+        return replacedStr.replaceAll("\\s+", "-").toLowerCase();
     }
 
     public String urlEncode(String source){
