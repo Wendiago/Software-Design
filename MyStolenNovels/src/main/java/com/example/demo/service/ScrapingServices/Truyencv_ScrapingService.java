@@ -1,6 +1,7 @@
-package com.example.demo.service;
+package com.example.demo.service.ScrapingServices;
 
 import com.example.demo.dto.NovelByCatDTO;
+import com.example.demo.dto.NovelDownloadContentDTO;
 import com.example.demo.response.*;
 import com.example.demo.utils.StringManipulator;
 import org.jsoup.Jsoup;
@@ -175,7 +176,7 @@ public class Truyencv_ScrapingService implements IScrapingServiceStrategy {
 
     //Get chapter content
     @Override
-    public NovelChapterContentResponse getNovelChapterContent(String title, int chapterNumber) throws Exception{
+    public NovelChapterContentResponse getNovelChapterContent(String title, String chapterNumber) throws Exception{
         String url = "https://truyenfull.vn";
         try {
             // Send an HTTP GET request to the website
@@ -218,19 +219,18 @@ public class Truyencv_ScrapingService implements IScrapingServiceStrategy {
 
     @Override
     public SearchResponse getSearchResult(String keyword, int page) throws Exception{
-        String url = "https://truyenfull.vn/tim-kiem/?tukhoa=" + keyword;
         try {
-            // Send an HTTP GET request to the website
-            Document document = Jsoup.connect(url).get();
-
-
-            Elements categoryListElements = document.select("ul.control.navbar-nav div.dropdown-menu.multi-column ul.dropdown-menu li");
-
-            List<String> categoryList = new ArrayList<>();
-            for (Element categoryElement : categoryListElements){
-                categoryList.add(categoryElement.select("a").text());
-            }
             return SearchResponse.builder().build();
+        }
+        catch(Exception e){
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    @Override
+    public NovelDownloadContentDTO getDownloadContent(String title) throws Exception{
+        try{
+            return NovelDownloadContentDTO.builder().build();
         }
         catch(Exception e){
             throw new Exception(e.getMessage());

@@ -1,10 +1,10 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.NovelDownloadContentDTO;
 import com.example.demo.factory.ScrapingServiceFactory;
 import com.example.demo.response.*;
-import com.example.demo.service.IScrapingServiceStrategy;
+import com.example.demo.service.ScrapingServices.IScrapingServiceStrategy;
 import com.example.demo.utils.MessageKeys;
-import com.example.demo.utils.StringManipulator;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -184,7 +183,7 @@ public class NovelFetchingController {
     public ResponseEntity<?> getChapterContent(
             @RequestBody List<String> sources,
             @PathVariable String title,
-            @PathVariable("chapter-number") int chapterNumber
+            @PathVariable("chapter-number") String chapterNumber
     ) {
         NovelChapterContentResponse contentRes = null;
         String succeededSource = "";
@@ -254,6 +253,44 @@ public class NovelFetchingController {
                     BaseResponse.<SearchResponse>builder()
                             .status("Failed")
                             .message("Failed to get search result from all sources")
+                            .status_code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                            .build()
+            );
+        }
+    }
+
+    @PostMapping("/{title}/download")
+    public ResponseEntity<?> getNovelDownloadContent(
+            @RequestBody List<String> sources,
+            @PathVariable String title
+    ) {
+        NovelDownloadContentDTO response = null;
+        String succeededSource = "";
+
+        for (String source : sources) {
+            try {
+                IScrapingServiceStrategy strategy = scrapingFactory.getScrapingStrategy(source);
+                response = strategy.getDownloadContent(title);
+                succeededSource = source;
+                break;
+            } catch (Exception e) {
+                log.error("Error fetching novel download content from {}, {}", source, e.getMessage());
+            }
+        }
+
+        if (response != null) {
+            return ResponseEntity.ok(BaseResponse.<NovelDownloadContentDTO>builder()
+                    .status("Success getting from source " + succeededSource)
+                    .message(MessageKeys.GET_NOVELDETAIL_SUCCESSFULLY)
+                    .status_code(HttpStatus.OK.value())
+                    .data(response)
+                    .build()
+            );
+        } else {
+            return ResponseEntity.internalServerError().body(
+                    BaseResponse.<NovelDownloadContentDTO>builder()
+                            .status("Failed")
+                            .message("Failed to get novel download content from all sources")
                             .status_code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                             .build()
             );

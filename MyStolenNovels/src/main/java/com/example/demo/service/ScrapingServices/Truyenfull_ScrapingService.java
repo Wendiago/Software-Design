@@ -1,9 +1,10 @@
-package com.example.demo.service;
+package com.example.demo.service.ScrapingServices;
 
-import com.example.demo.controller.NovelFetchingController;
 import com.example.demo.dto.NovelByCatDTO;
+import com.example.demo.dto.NovelDownloadContentDTO;
 import com.example.demo.response.*;
 import com.example.demo.utils.StringManipulator;
+import com.google.common.util.concurrent.RateLimiter;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -15,11 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.print.Doc;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,55 +30,12 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
     private StringManipulator stringManipulator;
     private static final Logger log = LoggerFactory.getLogger(Truyenfull_ScrapingService.class);
 
-    public static void main(String[] arg) throws Exception {
-        String keyword = "loan";
-        String url = "https://truyenfull.vn/tim-kiem/?tukhoa=" + keyword;
-        try {
-            Document document = Jsoup.connect(url).get();
-
-            //Get total pages
-            Elements lastPageElements = document.select("ul.pagination li:last-child a");
-            int totalPages = 1;
-            //If there is only 1 page
-            if (lastPageElements.isEmpty()) {
-                //
-            } else {
-                String lastPageUrl = lastPageElements.attr("href");
-                URI uri = new URI(lastPageUrl);
-                String query = uri.getQuery();
-                String[] params = query.split("&");
-                totalPages = Arrays.stream(params)
-                        .filter(param -> param.startsWith("page="))
-                        .map(param -> param.split("=")[1])
-                        .mapToInt(Integer::parseInt)
-                        .findFirst()
-                        .orElse(1);
-
-                //Get novels
-                List<NovelByCatDTO> novelList = new ArrayList<>();
-                //Get each page
-                Document novelListDoc = Jsoup.connect(url + "&page=" + Integer.toString(1)).get();
-                Elements novelListElements = novelListDoc
-                        .select("div.list-truyen div.row[itemtype=\"https://schema.org/Book\"]");
-                //System.out.println(novelListElements);
-                for (Element novel : novelListElements) {
-                    String image = novel.select("div[data-classname=\"cover\"]").attr("data-image");
-                    String title = novel.select(".truyen-title").text();
-                    String author = novel.select(".author").text();
-                    NovelByCatDTO novelItem = NovelByCatDTO.builder()
-                            .title(title)
-                            .imageUrl(image)
-                            .author(author)
-                            .build();
-                    novelList.add(novelItem);
-                }
-                System.out.println(novelList);
-            }
-
-        } catch (Exception e) {
-            throw new Exception(e.getMessage());
-        }
-    }
+    //For getting download content
+    private static final int MAX_RETRIES = 3;
+    private static final int TIMEOUT = 10;
+    private static final int RATE_LIMIT_DELAY = 500; //500ms between requests
+    private static final double REQUESTS_PER_SECOND = 1.0;
+    private RateLimiter rateLimiter = RateLimiter.create(REQUESTS_PER_SECOND);
 
     private static int getTotalPages(Document document) {
         Elements pageLinks = document.select("ul.pagination.pagination-sm > li:not(.dropup.page-nav)");
@@ -203,8 +158,21 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
         String url = "https://truyenfull.vn/" + stringManipulator.modify(novelTitle)
                 + "/trang-" + Integer.toString(page);
         try {
-            // Send an HTTP GET request to the website
             Document document = Jsoup.connect(url).get();
+
+            //Get chapter number list
+            String truyenId = document.select("#truyen-id").attr("value");
+            log.info("getNovelChapterList: truyenId: {}", truyenId);
+
+            String getChapterNumberListURL = "https://truyenfull.vn/ajax.php?type=chapter_option&data=" + truyenId;
+            Document chapterListDocument = Jsoup.connect(getChapterNumberListURL).get();
+            log.info("getNovelChapterList: chapterListDocument: {}", chapterListDocument);
+
+            Elements chapterNumberListElements = chapterListDocument.select("option");
+            List<String> chapterNumberList = chapterNumberListElements
+                    .stream().map(Element::text).toList();
+            List<String> rawChapterNumberList = chapterNumberListElements
+                    .stream().map(e -> e.attr("value")).toList();
 
             // Get total pages
             String totalPages = document.select("input#total-page").attr("value");
@@ -218,18 +186,11 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
                 chapterList.add(chapterListElement.select("a").text());
             }
 
-            //Get total chapters
-            String getTotalChapter_url = "https://truyenfull.vn/" + stringManipulator.modify(novelTitle)
-                    + "/trang-" + totalPages;
-            Document getTotalChapter_doc = Jsoup.connect(getTotalChapter_url).get();
-            String totalChaptersURL = getTotalChapter_doc.select("ul.list-chapter li:last-child a").attr("href");
-            int lastIndex = totalChaptersURL.lastIndexOf("/chuong-");
-            String totalChaptersStr = totalChaptersURL.substring(lastIndex + "/chuong-".length(), totalChaptersURL.length() - 1);
-
             return NovelChapterListResponse.builder()
                     .novelTitle(novelTitle)
                     .chapterList(chapterList)
-                    .totalChapters(Integer.parseInt(totalChaptersStr))
+                    .chapterNumberList(chapterNumberList)
+                    .rawChapterNumberList(rawChapterNumberList)
                     .currentPage(page)
                     .totalPages(Integer.parseInt(totalPages))
                     .build();
@@ -240,10 +201,9 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
 
     //Get chapter content
     @Override
-    public NovelChapterContentResponse getNovelChapterContent(String title, int chapterNumber) throws Exception {
+    public NovelChapterContentResponse getNovelChapterContent(String title, String chapterNumber) throws Exception {
         title = stringManipulator.modify(title);
-        String url = "https://truyenfull.vn/" + stringManipulator.modify(title) + "/chuong-"
-                + Integer.toString(chapterNumber) + "/";
+        String url = "https://truyenfull.vn/" + stringManipulator.modify(title) + "/" + chapterNumber;
         log.info("Constructed URL: {}", url);
         try {
             // Send an HTTP GET request to the website
@@ -251,6 +211,9 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
 
             // Select the target element
             Element chapterC = document.select("#chapter-c.chapter-c").first();
+
+            //Get raw text content
+            String textContent = document.select("#chapter-c.chapter-c").text();
 
             if (chapterC == null) {
                 throw new Exception("Chapter content not found in the document.");
@@ -273,6 +236,7 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
                     .chapterNumber(chapterNumber)
                     .chapterTitle(chapterTitle)
                     .content(content)
+                    .textContent(textContent)
                     .build();
         } catch (Exception e) {
             throw new Exception(e.getMessage());
@@ -404,6 +368,50 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
                         .build();
             }
         } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    @Override
+    public NovelDownloadContentDTO getDownloadContent(String title) throws Exception{
+        try{
+            NovelDetailResponse novelDetail = this.getNovelDetail(title);
+            //log.info("Download content - novel detail: {}", novelDetail);
+
+            NovelChapterListResponse chapterList = this.getNovelChapterList(title, 1);
+            //log.info("Download content - chapter list: {}", chapterList);
+
+            List<NovelDownloadContentDTO.ChapterDTO> chapters = new ArrayList<>();
+            List<String> chapterNumberList = chapterList.getRawChapterNumberList();
+
+            //log.info("Download content - chapterNumberList: {}", chapterNumberList);
+
+            for (String chapterNumber : chapterNumberList){
+                rateLimiter.acquire();
+                NovelChapterContentResponse chapterContentResponse = this.getNovelChapterContent(title, chapterNumber);
+                //log.info("Download content - chapter content: {}", chapterContentResponse);
+                NovelDownloadContentDTO.ChapterDTO chapterInfo = NovelDownloadContentDTO.ChapterDTO.builder()
+                        .chapterTitle(chapterContentResponse.getChapterTitle())
+                        .chapterContent(chapterContentResponse.getTextContent())
+                        .build();
+                //log.info("Download content - chapter: {}", chapterInfo);
+                if (chapterInfo != null){
+                    chapters.add(chapterInfo);
+                    //log.info("Download content - chapters: {}", chapters);
+                }
+            }
+            if (chapters.isEmpty()){
+                throw new Exception("Cannot get download content from truyenfull source");
+            }
+            return NovelDownloadContentDTO.builder()
+                    .title(novelDetail.getTitle())
+                    .image(novelDetail.getImage())
+                    .author(novelDetail.getAuthor())
+                    .source("truyenfull.vn")
+                    .chapters(chapters)
+                    .build();
+        }
+        catch(Exception e){
             throw new Exception(e.getMessage());
         }
     }

@@ -19,8 +19,11 @@ public class NovelChapterListResponse {
     @JsonProperty("chapters")
     private List<String> chapterList;
 
-    @JsonProperty("total_chapters")
-    private int totalChapters;
+    @JsonProperty("chapter_number_list")
+    private List<String> chapterNumberList;
+
+    @JsonProperty("raw_chapter_number_list")
+    private List<String> rawChapterNumberList;
 
     @JsonProperty("total_pages")
     private int totalPages;

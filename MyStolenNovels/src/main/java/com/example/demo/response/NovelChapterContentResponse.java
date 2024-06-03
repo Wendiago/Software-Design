@@ -11,13 +11,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class NovelChapterContentResponse {
-    public String title;
+    private String title;
 
     @JsonProperty("chap_no")
-    public int chapterNumber;
+    private String chapterNumber;
 
     @JsonProperty("chap_title")
-    public String chapterTitle;
+    private String chapterTitle;
 
-    public String content;
+    private String content;
+
+    @JsonProperty("text_content")
+    private String textContent;
 }
