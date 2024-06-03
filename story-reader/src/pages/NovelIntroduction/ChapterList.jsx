@@ -44,7 +44,6 @@ const ChapterList = ({ title, source }) => {
   const [page, setPage] = useState(1);
   const [chapters, setChapters] = useState(null);
   const [totalPage, setTotalPage] = useState(1);
-  const chaptersPerPage = 50;
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -67,7 +66,8 @@ const ChapterList = ({ title, source }) => {
   }, [title, source, page]);
 
   const handleChapter = (chapterNumber) => {
-    navigate(`/doc-truyen/${normalizeString(title)}/${chapterNumber}`);
+    const normalizeChapter = normalizeString(chapterNumber).split(':')[0];
+    navigate(`/doc-truyen/${normalizeString(title)}/${normalizeChapter}`);
   };
 
   const handlePageChange = (event, value) => {
@@ -94,7 +94,7 @@ const ChapterList = ({ title, source }) => {
         {isMobile ? (
           <List>
             {chapters?.map((chapter, index) => (
-              <ListItem key={index} onClick={() => handleChapter((page - 1) * chaptersPerPage + index + 1)}>
+              <ListItem key={index} onClick={() => handleChapter(chapter)}>
                 <ListItemText className={classes.item} primary={chapter} />
               </ListItem>
             ))}
@@ -104,7 +104,7 @@ const ChapterList = ({ title, source }) => {
             <Grid item xs={6}>
               <List>
                 {leftChapters?.map((chapter, index) => (
-                  <ListItem key={index} onClick={() => handleChapter((page - 1) * chaptersPerPage + index + 1)}>
+                  <ListItem key={index} onClick={() => handleChapter(chapter)}>
                     <ListItemText className={classes.item} primary={chapter} />
                   </ListItem>
                 ))}
@@ -113,7 +113,7 @@ const ChapterList = ({ title, source }) => {
             <Grid item xs={6}>
               <List>
                 {rightChapters?.map((chapter, index) => (
-                  <ListItem key={index} onClick={() => handleChapter((page - 1) * chaptersPerPage + index + leftChapters.length + 1)}>
+                  <ListItem key={index} onClick={() => handleChapter(chapter)}>
                     <ListItemText className={classes.item} primary={chapter} />
                   </ListItem>
                 ))}

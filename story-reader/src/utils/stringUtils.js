@@ -15,8 +15,12 @@ export function normalizeString(str) {
 
     const normalizedStr = str
         .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[đĐ]/g, match => map[match]);
+        .replace(/[đĐ]/g, match => map[match])
+        .replace(/[\u0021-\u002c]/g, '')
+        .replace(/[\u002e-\u002f]/g, '')
+        .replace(/[\u003a-\u0040]/g, '')
+        .replace(/[\u005b-\u0060]/g, '')
+        .replace(/[\u007b-\u1eff]/g, '');
 
     const result = normalizedStr.toLowerCase().replace(/\s+/g, '-');
     return result;

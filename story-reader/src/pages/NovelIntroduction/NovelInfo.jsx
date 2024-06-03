@@ -96,12 +96,6 @@ const NovelInfo = ({ novel }) => {
                   </span>
                 ))}
               </div>
-              <div>
-                Nguồn: {novel.source}
-              </div>
-              <div>
-                Trạng thái: {novel.status}
-              </div>
             </Typography>
           </Grid>
           <Grid item xs={12} sm={8} className={classes.details}>

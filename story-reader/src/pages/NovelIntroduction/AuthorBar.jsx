@@ -49,7 +49,7 @@ const AuthorBar = ({ title, author, source }) => {
       if (author && source) {
         try {
           const result = await novelAPI.searchNovel({ keyword: author, pageNumber: 1, source });
-          const filteredNovels = result.data.novels.filter(novel => novel.title !== title);
+          const filteredNovels = result?.data?.novels?.filter(novel => novel.title !== title);
           setNovels(filteredNovels);
         } catch (error) {
           console.error('Error fetching novel detail:', error);
@@ -58,7 +58,7 @@ const AuthorBar = ({ title, author, source }) => {
     };
 
     fetchNovelList();
-  }, [author, source]);
+  }, [title, author, source]);
 
   if (!novels){
     return (

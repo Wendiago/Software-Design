@@ -45,12 +45,35 @@ const NavButton = styled(Button)(({ theme }) => ({
 const NovelReading = () => {
   const { title, chapter } = useParams();
   const navigate = useNavigate();
-  const initialChapter = chapter ? parseInt(chapter, 10) : (parseInt(localStorage.getItem('currentChapter'), 10) || 1);
+  const initialChapter = chapter ? chapter : 'chuong-1';
   const [currentChapter, setCurrentChapter] = useState(initialChapter);
+  const [currentChapterIndex, setCurrentChapterIndex] = useState(null);
+  const [chapters, setChapters] = useState(null);
   const [content, setContent] = useState(null);
   const [fullTitle, setFullTitle] = useState(null);
   const [sources, setSources] = useState(null);
   const [breadcrumbs, setBreadcrumbs] = useState([]);
+
+  const formatChapter = (chapter) => {
+    return chapter?.replace('chuong-', 'Chương ');
+  };
+
+  const updateLocalStorage = (title, chapter) => {
+    const novel = { title, chapter };
+    let novelList = JSON.parse(localStorage.getItem('novelList')) || [];
+  
+    const novelIndex = novelList.findIndex(item => item.title === title);
+  
+    if (novelIndex === -1) {
+      novelList.push(novel);
+    } else {
+      novelList[novelIndex] = novel;
+    }
+
+    console.log(novelList)
+  
+    localStorage.setItem('novelList', JSON.stringify(novelList));
+  };
 
   useEffect(() => {
     const fetchSources = async () => {
@@ -64,7 +87,7 @@ const NovelReading = () => {
     };
 
     const fetchNovelDetail = async (source) => {
-      if (source) {
+      if (source && title) {
         try {
           const result = await novelAPI.getNovelDetail({ title, source });
           return result.data;
@@ -74,10 +97,27 @@ const NovelReading = () => {
       }
     };
 
+    const fetchNovelChapters = async (source) => {
+      if (source && title) {
+        try {
+          const result = await novelAPI.getNovelChapterList({ title, pageNumber: 1, source});
+          const chapterIndex = result?.data?.raw_chapter_number_list 
+                              ? result?.data?.raw_chapter_number_list.indexOf(currentChapter) 
+                              : 0;
+
+          setCurrentChapterIndex(chapterIndex);
+          setChapters(result?.data?.raw_chapter_number_list);
+        } catch (error) {
+          console.error('Error fetching novel detail:', error);
+        }
+      }
+    }
+
     const fetchNovelContent = async (chapterNumber, source) => {
       try {
-        if (chapterNumber && source) {
+        if (chapterNumber && source && title) {
           const result = await novelAPI.getNovelChapterContent({ title, chapterNumber, source });
+          
           setContent(result.data.content);
         }
       } catch (error) {
@@ -88,21 +128,23 @@ const NovelReading = () => {
     const fetchData = async (currentChapter) => {
       const sourcesResult = await fetchSources();
       if (sourcesResult) {
+        await fetchNovelChapters(sourcesResult);
         await fetchNovelContent(currentChapter, sourcesResult);
         const detail = await fetchNovelDetail(sourcesResult);
-        
+        console.log(detail)
         setBreadcrumbs([
           {
             name: detail.title,
             link: `/gioi-thieu/${title}`,
           },
           {
-            name: `Chương ${currentChapter}`,
+            name: `${formatChapter(currentChapter)}`,
             link: `/doc-truyen/${title}/${currentChapter}`,
           },
         ]);
 
         setFullTitle(detail.title);
+        updateLocalStorage(detail.title, currentChapter);
       }
     };
 
@@ -110,17 +152,19 @@ const NovelReading = () => {
   }, [title, currentChapter]);
 
   const handlePrevious = () => {
-    if (currentChapter > 1) {
-      const newChapter = currentChapter - 1;
+    if (chapters && currentChapterIndex > 0) {
+      const newChapter = chapters[currentChapterIndex - 1];
       setCurrentChapter(newChapter);
       navigate(`/doc-truyen/${title}/${newChapter}`);
     }
   };
 
   const handleNext = () => {
-    const newChapter = currentChapter + 1;
-    setCurrentChapter(newChapter);
-    navigate(`/doc-truyen/${title}/${newChapter}`);
+    if (chapters && currentChapterIndex < chapters.length - 1) {
+      const newChapter = chapters[currentChapterIndex + 1];
+      setCurrentChapter(newChapter);
+      navigate(`/doc-truyen/${title}/${newChapter}`);
+    }
   };
 
   const handleServer = (server) => {
@@ -138,7 +182,7 @@ const NovelReading = () => {
     fetchNovelContent(currentChapter, source);
   };
 
-  if (!sources || !title || !content) {
+  if (!sources || !title) {
     return (
       <Loading/>
     )
@@ -155,50 +199,50 @@ const NovelReading = () => {
             {fullTitle}
           </Typography>
           <Typography variant="subtitle1" gutterBottom>
-            Chương {currentChapter}
+            {formatChapter(currentChapter)}
           </Typography>
           <Box>
-            <NavButton variant="outlined" onClick={handlePrevious} disabled={currentChapter <= 1}>
+            <NavButton variant="outlined" onClick={handlePrevious} disabled={currentChapterIndex <= 0}>
               &lt; Chương trước
             </NavButton>
             <NavButton>
-              <ChapterListDropDown title={title} source={sources}/>
+              <ChapterListDropDown title={title} chapters={chapters}/>
             </NavButton>
-            <NavButton variant="outlined" onClick={handleNext}>
+            <NavButton variant="outlined" onClick={handleNext} disabled={chapters && currentChapterIndex >= chapters.length - 1}>
               Chương tiếp &gt;
-          </NavButton>
-        </Box>
-        <Box>
-          {sources?.map((source, index) => (
-            <NavButton key={index} variant="outlined" onClick={() => {handleServer(source)}}>
-            Server {index + 1}
             </NavButton>
-          ))}
-        </Box>
-      </NavigationContainer>
-      <Typography variant="subtitle1" gutterBottom className={classes.content}>
-        {<div dangerouslySetInnerHTML={{ __html: content }} /> || 'Nội dung chương đang được tải...'}
-      </Typography>
-      <NavigationContainer>
-        <Box>
-          <NavButton variant="outlined" onClick={handlePrevious} disabled={currentChapter <= 1}>
-            &lt; Chương trước
-          </NavButton>
-          <NavButton>
-            <ChapterListDropDown title={title} source={sources}/>
-          </NavButton>
-          <NavButton variant="outlined" onClick={handleNext}>
-            Chương tiếp &gt;
-          </NavButton>
-        </Box>
-        <Box>
-          {sources?.map((source, index) => (
-            <NavButton key={index} variant="outlined" onClick={() => {handleServer(source)}}>
-            Server {index + 1}
+          </Box>
+          <Box>
+            {sources?.map((source, index) => (
+              <NavButton key={index} variant="outlined" onClick={() => {handleServer(source)}}>
+              Server {index + 1}
+              </NavButton>
+            ))}
+          </Box>
+        </NavigationContainer>
+        <Typography variant="subtitle1" gutterBottom className={classes.content}>
+          {<div dangerouslySetInnerHTML={{ __html: content }} /> || 'Nội dung chương đang được tải...'}
+        </Typography>
+        <NavigationContainer>
+          <Box>
+            <NavButton variant="outlined" onClick={handlePrevious} disabled={currentChapterIndex <= 0}>
+              &lt; Chương trước
             </NavButton>
-          ))}
-        </Box>
-      </NavigationContainer>
+            <NavButton>
+              <ChapterListDropDown title={title} chapters={chapters}/>
+            </NavButton>
+            <NavButton variant="outlined" onClick={handleNext} disabled={chapters && currentChapterIndex >= chapters.length - 1}>
+              Chương tiếp &gt;
+            </NavButton>
+          </Box>
+          <Box>
+            {sources?.map((source, index) => (
+              <NavButton key={index} variant="outlined" onClick={() => {handleServer(source)}}>
+              Server {index + 1}
+              </NavButton>
+            ))}
+          </Box>
+        </NavigationContainer>
       </Paper>
     </Root>
   );

@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Select, MenuItem, Paper } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import { normalizeString } from '../../utils/stringUtils';
-import { novelAPI } from '../../api';
-import { Loading } from '../../components';
 
 const PREFIX = 'ChapterList';
 const classes = {
@@ -55,41 +53,17 @@ const CustomMenuItem = styled(MenuItem)(({ theme }) => ({
     },
 }));
 
-const ChapterListDropDown = ({ title, source }) => {
+const ChapterListDropDown = ({ title, chapters }) => {
   const navigate = useNavigate();
-  const [totalChapters, setTotalChapters] = useState(null);
-
-  useEffect(() => {
-    if (title && source){
-      const fetchLatestChapter = async (title, source) => {
-        try {
-          const firstPageResult = await novelAPI.getNovelChapterList({ title, pageNumber: 1, source });
-          const { total_pages } = firstPageResult?.data;
-          
-          if (total_pages){
-            const lastPageResult = await novelAPI.getNovelChapterList({ title, pageNumber: total_pages, source });
-            const latestChapter = lastPageResult?.data?.chapters?.length;
-            setTotalChapters((total_pages - 1) * 50 + latestChapter);
-          }
-        } catch (error) {
-          console.error('Error fetching latest chapter:', error);
-        } 
-      };
-  
-      fetchLatestChapter(title, source);
-    }
-  }, [title, source]);
 
   const handleChapter = (chapterNumber) => {
     navigate(`/doc-truyen/${normalizeString(title)}/${chapterNumber}`);
     window.location.reload();
   };
 
-  if (!totalChapters) {
-    return (
-      <Loading/>
-    )
-  }
+  const formatChapter = (chapter) => {
+    return chapter?.replace('chuong-', 'Chương ');
+  };
 
   return (
     <Root>
@@ -108,11 +82,11 @@ const ChapterListDropDown = ({ title, source }) => {
         }}
         >
         <CustomMenuItem value="" disabled>
-            Chọn chương
+          Chọn chương
         </CustomMenuItem>
-        {Array.from({ length: totalChapters }, (_, index) => (
-            <CustomMenuItem key={index} value={index + 1}>
-            {`Chương ${index + 1}`}
+        {chapters?.map((chapter, index) => (
+            <CustomMenuItem key={index} value={chapter}>
+            {formatChapter(chapter)}
             </CustomMenuItem>
         ))}
         </CustomSelect>
