@@ -1,12 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { List, ListItem, ListItemText, Paper, Typography, Grid, Pagination, useMediaQuery, useTheme } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { useNavigate } from 'react-router-dom';
-import { normalizeString } from '../../utils/stringUtils';
-import { novelAPI } from '../../api';
-import { Loading } from '../../components';
+import React, { useState, useEffect } from "react";
+import {
+  List,
+  ListItem,
+  ListItemText,
+  Paper,
+  Typography,
+  Grid,
+  Pagination,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import { useNavigate } from "react-router-dom";
+import { normalizeString } from "../../utils/stringUtils";
+import { novelAPI } from "../../api";
+import { Loading } from "../../components";
+import { useNovelChapterList } from "../../hooks/novelHook";
+import toast from "react-hot-toast";
 
-const PREFIX = 'ChapterList';
+const PREFIX = "ChapterList";
 const classes = {
   root: `${PREFIX}-root`,
   list: `${PREFIX}-list`,
@@ -16,7 +28,7 @@ const classes = {
   item: `${PREFIX}-item`,
 };
 
-const Root = styled('div')(({ theme }) => ({
+const Root = styled("div")(({ theme }) => ({
   [`& .${classes.paper}`]: {
     backgroundColor: theme.palette.background.paper,
   },
@@ -30,43 +42,30 @@ const Root = styled('div')(({ theme }) => ({
     padding: theme.spacing(2),
   },
   [`& .${classes.pagination}`]: {
-    display: 'flex',
-    justifyContent: 'center',
+    display: "flex",
+    justifyContent: "center",
     padding: theme.spacing(2),
   },
   [`& .${classes.item}`]: {
-    cursor: 'pointer',
+    cursor: "pointer",
   },
 }));
 
-const ChapterList = ({ title, source }) => {
+const ChapterList = ({ title }) => {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
-  const [chapters, setChapters] = useState(null);
-  const [totalPage, setTotalPage] = useState(1);
 
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  useEffect(() => {
-    if (title && source && page) {
-      const fetchNovelChapter = async (pageNumber) => {
-        try {
-          const result = await novelAPI.getNovelChapterList({ title, pageNumber, source });
-          console.log(result)
-          setChapters(result?.data?.chapters);
-          setTotalPage(result?.data?.total_pages);
-        } catch (error) {
-          console.error('Error fetching novel chapter:', error);
-        } finally {
-        }
-      };
-      fetchNovelChapter(page);
-    }
-  }, [title, source, page]);
+  const {
+    isPending: isLoadingChapters,
+    error: chaptersError,
+    data: { chapters, total_pages } = {},
+  } = useNovelChapterList(title, page);
 
   const handleChapter = (chapterNumber) => {
-    const normalizeChapter = normalizeString(chapterNumber).split(':')[0];
+    const normalizeChapter = normalizeString(chapterNumber).split(":")[0];
     navigate(`/doc-truyen/${normalizeString(title)}/${normalizeChapter}`);
   };
 
@@ -81,16 +80,19 @@ const ChapterList = ({ title, source }) => {
 
   const [leftChapters, rightChapters] = splitChapters();
 
-  if (!chapters){
-    return (
-      <Loading/>
-    )
+  if (chaptersError)
+    toast.error(chaptersError.message || chaptersError.response);
+
+  if (isLoadingChapters) {
+    return <Loading />;
   }
 
   return (
     <Root>
       <Paper className={classes.paper}>
-        <Typography variant="h6" className={classes.title}>DANH SÁCH CHƯƠNG</Typography>
+        <Typography variant="h6" className={classes.title}>
+          DANH SÁCH CHƯƠNG
+        </Typography>
         {isMobile ? (
           <List>
             {chapters?.map((chapter, index) => (
@@ -120,10 +122,10 @@ const ChapterList = ({ title, source }) => {
               </List>
             </Grid>
           </Grid>
-        )} 
+        )}
         <div className={classes.pagination}>
           <Pagination
-            count={totalPage}
+            count={total_pages}
             page={page}
             onChange={handlePageChange}
             color="primary"

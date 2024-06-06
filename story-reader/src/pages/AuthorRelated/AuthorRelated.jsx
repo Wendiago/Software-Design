@@ -1,26 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Pagination } from '@mui/material';
-import { Breadcrumb, NovelList, Loading } from '../../components';
-import { styled } from '@mui/material/styles';
-import { sourceAPI, novelAPI } from '../../api';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { Container, Pagination } from "@mui/material";
+import { Breadcrumb, NovelList, Loading } from "../../components";
+import { styled } from "@mui/material/styles";
+import { sourceAPI, novelAPI } from "../../api";
+import { useParams } from "react-router-dom";
+import { useNovelSearched } from "../../hooks/novelHook";
+import toast from "react-hot-toast";
 
-const PREFIX = 'AuthorRelated';
+const PREFIX = "AuthorRelated";
 const classes = {
   root: `${PREFIX}-root`,
   pagination: `${PREFIX}-pagination`,
 };
 
-const Root = styled('div')(({ theme }) => ({
+const Root = styled("div")(({ theme }) => ({
   [`&.${classes.root}`]: {
     flexGrow: 1,
     backgroundColor: theme.palette.background.default,
     color: theme.palette.text.primary,
-    minHeight: '100vh',
+    minHeight: "100vh",
   },
   [`& .${classes.pagination}`]: {
-    display: 'flex',
-    justifyContent: 'center',
+    display: "flex",
+    justifyContent: "center",
     padding: theme.spacing(2, 0),
   },
 }));
@@ -28,66 +30,38 @@ const Root = styled('div')(({ theme }) => ({
 const AuthorRelated = () => {
   const { author } = useParams();
   const [page, setPage] = useState(1);
-  const [novels, setNovels] = useState(null);
-  const [breadcrumbs, setBreadcrumbs] = useState([]);
-  const [totalPage, setTotalPage] = useState(1);
 
   const handlePageChange = (event, value) => {
     setPage(value);
-  }
+  };
 
-  useEffect(() => {
-    const fetchSources = async () => {
-      try {
-        const result = await sourceAPI.getAllSources();
-        return result.data;
-      } catch (error) {
-        console.error('Error fetching sources:', error);
-      }
-    };
+  const {
+    isPending: isLoadingNovels,
+    error: novelsError,
+    data: { novels, total_pages } = {},
+  } = useNovelSearched(author, page);
 
-    const fetchNovelList = async (source) => {
-      if (author && source) {
-        try {
-          const result = await novelAPI.searchNovel({ keyword: author, pageNumber: page, source });
-          setNovels(result.data.novels);
-          setBreadcrumbs([
-            {
-              name: result.data.novels[0].author,
-              link: `/tac-gia/${author}`
-            },
-          ]);
-          setTotalPage(result.data.total_pages);
-        } catch (error) {
-          console.error('Error fetching novel detail:', error);
-        }
-      }
-    };
+  const breadcrumbs = [
+    {
+      name: novels?.at(0).author,
+      link: `/tac-gia/${author}`,
+    },
+  ];
 
-    const fetchData = async () => {
-      const result = await fetchSources();
-      if (result) {
-        await fetchNovelList(result);
-      }
-    };
+  if (novelsError) toast.error(novelsError.message || novelsError.response);
 
-    fetchData();
-  }, [author, page]);
-
-  if (!novels){
-    return (
-      <Loading/>
-    )
+  if (isLoadingNovels) {
+    return <Loading />;
   }
 
   return (
     <Root className={classes.root}>
       <Container>
-        <Breadcrumb breadcrumbs={breadcrumbs}/>
-        <NovelList novels={novels}/>
+        <Breadcrumb breadcrumbs={breadcrumbs} />
+        <NovelList novels={novels} />
         <div className={classes.pagination}>
           <Pagination
-            count={totalPage}
+            count={total_pages}
             page={page}
             onChange={handlePageChange}
             showFirstButton
