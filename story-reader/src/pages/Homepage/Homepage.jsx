@@ -48,7 +48,7 @@ const Homepage = () => {
               Truyện đã đọc gần đây
             </Typography>
             <Grid container spacing={3}>
-              {novelList.map((novel, index) => (
+              {novelList?.map((novel, index) => (
                 <Grid item key={index} xs={12} sm={6} md={4}>
                   <Card className={classes.item} onClick={() => handleNovel(novel.title, novel.chapter)}>
                     <CardContent>

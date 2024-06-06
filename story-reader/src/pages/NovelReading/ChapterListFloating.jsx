@@ -77,7 +77,7 @@ const ChapterListFloating = ({ title, chapters }) => {
                     Chọn chương
                 </Typography>
                 <List className={classes.list}>
-                    {chapters.map((chapter, index) => (
+                    {chapters?.map((chapter, index) => (
                     <ListItem 
                         key={index} 
                         className={classes.listItem} 
