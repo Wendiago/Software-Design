@@ -65,7 +65,7 @@ const ChapterList = ({ title }) => {
   } = useNovelChapterList(title, page);
 
   const handleChapter = (chapterNumber) => {
-    const normalizeChapter = normalizeString(chapterNumber).split(":")[0];
+    const normalizeChapter = normalizeString(chapterNumber.split(':')[0]);
     navigate(`/doc-truyen/${normalizeString(title)}/${normalizeChapter}`);
   };
 

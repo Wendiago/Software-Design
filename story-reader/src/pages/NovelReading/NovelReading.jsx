@@ -5,6 +5,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { sourceAPI, novelAPI } from "../../api";
 import { Breadcrumb, Loading } from "../../components";
 import ChapterListDropDown from "./ChapterListDropDown";
+import ChapterListFloating from './ChapterListFloating';
 import { useAllSources } from "../../hooks/useAllSources";
 import {
   useNovelChapterContent,
@@ -138,6 +139,7 @@ const NovelReading = () => {
           <Grid>
             <Breadcrumb breadcrumbs={breadcrumbs} />
           </Grid>
+          <ChapterListFloating title={title} chapters={chapters}/>
           <Typography variant="h5" gutterBottom className={classes.title}>
             {fullTitle}
           </Typography>
