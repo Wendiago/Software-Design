@@ -14,8 +14,10 @@ const Container = ({ children, selectedTheme, toggleTheme }) => {
 
   return (
     <div className="divide-y flex flex-col min-h-screen">
-      <Header selectedTheme={selectedTheme} toggleTheme={toggleTheme} />
-      <div className="flex-1">{children}</div>
+      <Header selectedTheme={selectedTheme} toggleTheme={toggleTheme}/>
+      <div style={{ marginTop: '60px' }} className="flex-1">
+        {children}
+      </div>
     </div>
   );
 };

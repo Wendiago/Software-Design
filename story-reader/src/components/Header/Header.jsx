@@ -14,7 +14,7 @@ const Header = ({ selectedTheme, toggleTheme }) => {
     };
 
     return (
-        <AppBar position="static" color="primary">
+        <AppBar position="fixed" color="primary">
             {isMobile ? (
                 <div>
                     <div style={{ display: 'flex', alignItems: 'center', padding: '5px'}}>

@@ -5,6 +5,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { sourceAPI, novelAPI } from '../../api';
 import { Breadcrumb, Loading } from '../../components';
 import ChapterListDropDown from './ChapterListDropDown';
+import ChapterListFloating from './ChapterListFloating';
 
 const PREFIX = 'NovelReading';
 const classes = {
@@ -24,7 +25,7 @@ const Root = styled('div')(({ theme }) => ({
     whiteSpace: 'pre-line',
   },
   [`& .${classes.root}`]: {
-    marginLeft: '10%'
+    marginLeft: '10%',
   },
   [`& .${classes.content}`]: {
     marginLeft: '5%',
@@ -195,6 +196,7 @@ const NovelReading = () => {
           <Grid>
             <Breadcrumb breadcrumbs={breadcrumbs}/>
           </Grid>
+          <ChapterListFloating title={title} chapters={chapters}/>
           <Typography variant="h5" gutterBottom className={classes.title}>
             {fullTitle}
           </Typography>
