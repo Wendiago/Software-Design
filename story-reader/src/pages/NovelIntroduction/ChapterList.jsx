@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   List,
   ListItem,
@@ -13,7 +13,6 @@ import {
 import { styled } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import { normalizeString } from "../../utils/stringUtils";
-import { novelAPI } from "../../api";
 import { Loading } from "../../components";
 import { useNovelChapterList } from "../../hooks/novelHook";
 import toast from "react-hot-toast";
@@ -65,7 +64,7 @@ const ChapterList = ({ title }) => {
   } = useNovelChapterList(title, page);
 
   const handleChapter = (chapterNumber) => {
-    const normalizeChapter = normalizeString(chapterNumber).split(":")[0];
+    const normalizeChapter = normalizeString(chapterNumber.split(":")[0]);
     navigate(`/doc-truyen/${normalizeString(title)}/${normalizeChapter}`);
   };
 

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Container, Grid, Box, Button, Typography, Paper } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useParams, useNavigate } from "react-router-dom";
-import { sourceAPI, novelAPI } from "../../api";
 import { Breadcrumb, Loading } from "../../components";
 import ChapterListDropDown from "./ChapterListDropDown";
 import { useAllSources } from "../../hooks/useAllSources";
@@ -56,7 +55,6 @@ const NovelReading = () => {
 
   const { source: sources } = useAllSources();
   const [currentSource, setCurrentSource] = useState(sources);
-
   const { data: { raw_chapter_number_list: chapters } = {} } =
     useNovelChapterList(title, 1);
   const currentChapterIndex = chapters?.indexOf(currentChapter);
@@ -64,10 +62,10 @@ const NovelReading = () => {
   const { data: { content } = {} } = useNovelChapterContent(
     title,
     currentChapter,
-    currentSource
+    currentSource || sources
   );
 
-  const { data: { fullTitle } = {} } = useNovelDetail(title);
+  const { data: { title: fullTitle } = {} } = useNovelDetail(title);
   const breadcrumbs = [
     {
       name: fullTitle,

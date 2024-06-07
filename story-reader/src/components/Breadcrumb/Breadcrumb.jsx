@@ -17,8 +17,9 @@ const Root = styled('div')(({ theme }) => ({
 const Breadcrumb = ({ breadcrumbs }) => {
   const navigate = useNavigate();
   const handleBreadcrumb = (breadcrumb) => {
-    navigate(breadcrumb)
+    navigate(breadcrumb);
   };
+
   return (
     <Root className={classes.root}>
       <Breadcrumbs aria-label="breadcrumb">

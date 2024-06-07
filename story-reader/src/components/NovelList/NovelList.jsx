@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Card,
   CardMedia,
   CardContent,
   Typography,
   Grid,
-  Chip,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
@@ -53,10 +52,6 @@ const NovelList = ({ novels }) => {
 
   const handleNovel = (novelName) => {
     navigate(`/gioi-thieu/${normalizeString(novelName)}`);
-  };
-
-  const handleReadNovel = (novelName, chapterNumber) => {
-    navigate(`/doc-truyen/${normalizeString(novelName)}/${chapterNumber}`);
   };
 
   return (

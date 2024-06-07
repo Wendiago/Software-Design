@@ -1,8 +1,7 @@
-import React, { useState, useEffect, Component } from "react";
+import React, { useState } from "react";
 import { Container, Pagination, Typography } from "@mui/material";
 import { Breadcrumb, NovelList, Loading } from "../../components";
 import { styled } from "@mui/material/styles";
-import { sourceAPI, categoryAPI } from "../../api";
 import { useParams } from "react-router-dom";
 import { normalizeString } from "../../utils/stringUtils";
 import { useAllCategories, useNovelByCategory } from "../../hooks/categoryHook";

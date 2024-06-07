@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   Typography,
   List,
@@ -9,7 +9,6 @@ import {
 import { styled } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import { normalizeString } from "../../utils/stringUtils";
-import { novelAPI } from "../../api";
 import { Loading } from "../../components";
 import { useNovelSearched } from "../../hooks/novelHook";
 import toast from "react-hot-toast";

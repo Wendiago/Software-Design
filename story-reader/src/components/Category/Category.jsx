@@ -1,17 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { IconButton, useMediaQuery, useTheme, Menu, Table, TableBody, TableRow, TableCell } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { FaList, FaCaretDown } from 'react-icons/fa';
 import { normalizeString } from '../../utils/stringUtils';
-import { categoryAPI, sourceAPI } from '../../api';
+import { useAllCategories } from "../../hooks/categoryHook";
 
 const Category = () => {
     const navigate = useNavigate();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm')); 
-    const [category, setCategory] = useState([]);
     const [anchorEl, setAnchorEl] = useState(null);
     const [showCategory, setShowCategory] = useState(false);
+    const { categories } = useAllCategories();
+    const capitalizedCategories = categories?.data?.categories;
 
     const handleCategory = (categoryName) => {
         navigate(`/the-loai/${normalizeString(categoryName)}`);
@@ -33,38 +34,6 @@ const Category = () => {
         setAnchorEl(null);
         setShowCategory(!showCategory);
     };
-    
-    useEffect(() => {
-        const fetchSources = async () => {
-            try {
-                const result = await sourceAPI.getAllSources();
-                return result.data
-              } catch (error) {
-                console.error('Error fetching categories:', error);
-              }
-        };
-
-        const fetchCategories = async (source) => {
-            if (source){
-                try {
-                    const result = await categoryAPI.getAllCategories({source});
-                    const capitalizedCategories = result?.data?.categories;
-                    setCategory(capitalizedCategories);
-                } catch (error) {
-                    console.error('Error fetching categories:', error);
-                }
-            }
-        };
-        
-        const fetchData = async () => {
-            const sources = await fetchSources();
-            if (sources){
-                await fetchCategories(sources);
-            }
-        };
-      
-        fetchData();
-    }, []);
 
     return (
         <div>
@@ -87,13 +56,13 @@ const Category = () => {
                     <div id="category-menu" style={{ visibility: 'visible'}}>
                         <Table>
                             <TableBody>
-                                {category?.map((cat, index) => (
+                                {capitalizedCategories?.map((cat, index) => (
                                     index % 4 === 0 && (
                                         <TableRow key={index}>
                                             <TableCell style={{color: 'white', cursor: 'pointer'}} onClick={() => handleCategory(cat)}>{cat}</TableCell>
-                                            {category[index + 1] && <TableCell style={{color: 'white', cursor: 'pointer'}} onClick={() => handleCategory(category[index + 1])}>{category[index + 1]}</TableCell>}
-                                            {category[index + 2] && <TableCell style={{color: 'white', cursor: 'pointer'}} onClick={() => handleCategory(category[index + 2])}>{category[index + 2]}</TableCell>}
-                                            {category[index + 3] && <TableCell style={{color: 'white', cursor: 'pointer'}} onClick={() => handleCategory(category[index + 3])}>{category[index + 3]}</TableCell>}
+                                            {capitalizedCategories[index + 1] && <TableCell style={{color: 'white', cursor: 'pointer'}} onClick={() => handleCategory(capitalizedCategories[index + 1])}>{capitalizedCategories[index + 1]}</TableCell>}
+                                            {capitalizedCategories[index + 2] && <TableCell style={{color: 'white', cursor: 'pointer'}} onClick={() => handleCategory(capitalizedCategories[index + 2])}>{capitalizedCategories[index + 2]}</TableCell>}
+                                            {capitalizedCategories[index + 3] && <TableCell style={{color: 'white', cursor: 'pointer'}} onClick={() => handleCategory(capitalizedCategories[index + 3])}>{capitalizedCategories[index + 3]}</TableCell>}
                                         </TableRow>
                                     )
                                 ))}
@@ -132,13 +101,13 @@ const Category = () => {
                 >
                     <Table>
                         <TableBody>
-                            {category?.map((cat, index) => (
+                            {capitalizedCategories?.map((cat, index) => (
                                 index % 4 === 0 && (
                                     <TableRow key={index}>
                                         <TableCell style={{ cursor: 'pointer'}} onClick={() => handleCategory(cat)}>{cat}</TableCell>
-                                        {category[index + 1] && <TableCell style={{ cursor: 'pointer'}} onClick={() => handleCategory(category[index + 1])}>{category[index + 1]}</TableCell>}
-                                        {category[index + 2] && <TableCell style={{ cursor: 'pointer'}} onClick={() => handleCategory(category[index + 2])}>{category[index + 2]}</TableCell>}
-                                        {category[index + 3] && <TableCell style={{ cursor: 'pointer'}} onClick={() => handleCategory(category[index + 3])}>{category[index + 3]}</TableCell>}
+                                        {capitalizedCategories[index + 1] && <TableCell style={{ cursor: 'pointer'}} onClick={() => handleCategory(capitalizedCategories[index + 1])}>{capitalizedCategories[index + 1]}</TableCell>}
+                                        {capitalizedCategories[index + 2] && <TableCell style={{ cursor: 'pointer'}} onClick={() => handleCategory(capitalizedCategories[index + 2])}>{capitalizedCategories[index + 2]}</TableCell>}
+                                        {capitalizedCategories[index + 3] && <TableCell style={{ cursor: 'pointer'}} onClick={() => handleCategory(capitalizedCategories[index + 3])}>{capitalizedCategories[index + 3]}</TableCell>}
                                     </TableRow>
                                 )
                             ))}

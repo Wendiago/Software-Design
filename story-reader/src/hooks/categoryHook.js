@@ -10,7 +10,7 @@ export function useAllCategories() {
     data: categories,
   } = useQuery({
     queryKey: ["categories"],
-    queryFn: () => categoryAPI.getAllCategories(source),
+    queryFn: () => categoryAPI.getAllCategories({ source }),
   });
 
   return { isPending, error, categories };
@@ -23,7 +23,7 @@ export function useNovelByCategory(category, pageNumber) {
     error,
     data: { data } = {},
   } = useQuery({
-    queryKey: ["novel-by-category"],
+    queryKey: ["novel-by-category", category, pageNumber],
     queryFn: () =>
       categoryAPI.getNovelByCategory({ category, pageNumber, source }),
   });

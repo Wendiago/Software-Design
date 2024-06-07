@@ -9,6 +9,7 @@ class novelAPI {
   }
 
   async getNovelChapterList({ title, pageNumber, source }) {
+    console.log(`/${title}/chapter-list?page=${pageNumber}`)
     if (!title) throw new Error("No title specified 💥");
     if (!pageNumber) throw new Error("No page specified 💥");
     if (!source)

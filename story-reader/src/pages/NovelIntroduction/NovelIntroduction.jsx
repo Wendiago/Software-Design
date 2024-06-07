@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Container, Grid, useMediaQuery, useTheme } from "@mui/material";
 import NovelInfo from "./NovelInfo";
 import ChapterList from "./ChapterList";
 import AuthorBar from "./AuthorBar";
 import { Breadcrumb, Loading } from "../../components";
 import { styled } from "@mui/material/styles";
-import { novelAPI, sourceAPI } from "../../api";
 import { useParams } from "react-router-dom";
 import { useNovelDetail } from "../../hooks/novelHook";
 import toast from "react-hot-toast";

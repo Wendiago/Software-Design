@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Container, Pagination } from "@mui/material";
 import { Breadcrumb, NovelList, Loading } from "../../components";
 import { styled } from "@mui/material/styles";
-import { sourceAPI, novelAPI } from "../../api";
 import { useParams } from "react-router-dom";
 import { useNovelSearched } from "../../hooks/novelHook";
 import toast from "react-hot-toast";
