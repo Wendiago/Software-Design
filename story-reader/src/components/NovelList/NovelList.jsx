@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Card,
   CardContent,
@@ -61,10 +61,6 @@ const NovelList = ({ novels }) => {
   const navigate = useNavigate();
   const handleNovel = (novelName) => {
     navigate(`/gioi-thieu/${normalizeString(novelName)}`);
-  };
-
-  const handleReadNovel = (novelName, chapterNumber) => {
-    navigate(`/doc-truyen/${normalizeString(novelName)}/${chapterNumber}`);
   };
 
   return (
