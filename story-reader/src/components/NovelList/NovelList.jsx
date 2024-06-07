@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   Card,
-  CardMedia,
   CardContent,
   Typography,
   Grid,
@@ -13,6 +12,7 @@ import { normalizeString } from '../../utils/stringUtils';
 const PREFIX = 'NovelList';
 const classes = {
   root: `${PREFIX}-root`,
+  grid: `${PREFIX}-grid`,
   card: `${PREFIX}-card`,
   cardMedia: `${PREFIX}-cardMedia`,
   cardContent: `${PREFIX}-cardContent`,
@@ -26,15 +26,25 @@ const Root = styled('div')(({ theme }) => ({
     flexGrow: 1,
   },
   [`& .${classes.card}`]: {
-    display: 'flex',
-    marginBottom: theme.spacing(2),
     width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+  },
+  [`& .${classes.grid}`]: {
+    display: 'grid',
+    gridTemplateColumns: '10% 85%',
+    gap: theme.spacing(2),
+    marginBottom: theme.spacing(2),
   },
   [`& .${classes.cardMedia}`]: {
-    width: '20%',
+    width: '100%',
+    height: 'auto',
+    minHeight: '100px',
+    minWidth: '40px'
   },
   [`& .${classes.cardContent}`]: {
-    width: '80%',
+    width: '100%',
   },
   [`& .${classes.chip}`]: {
     marginRight: theme.spacing(1),
@@ -49,7 +59,6 @@ const Root = styled('div')(({ theme }) => ({
 
 const NovelList = ({ novels }) => {
   const navigate = useNavigate();
-
   const handleNovel = (novelName) => {
     navigate(`/gioi-thieu/${normalizeString(novelName)}`);
   };
@@ -58,13 +67,9 @@ const NovelList = ({ novels }) => {
     <Root className={classes.root}>
       <Grid container spacing={2}>
         {novels?.map((novel, index) => (
-          <Grid item xs={12} key={index}>
+          <Grid item xs={12} key={index} className={classes.grid}>
+            <img className={classes.cardMedia} src={novel.imageUrl} alt={novel.title}/>
             <Card className={classes.card}>
-              <CardMedia
-                className={classes.cardMedia}
-                image={novel.imageUrl}
-                title={novel.title}
-              />
               <CardContent className={classes.cardContent}>
                 <Typography 
                   className={classes.title}
