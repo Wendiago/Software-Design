@@ -1,5 +1,3 @@
-const baseFontSize = 16;
-
 export const themes = {
   light: {
       palette: {
@@ -13,9 +11,6 @@ export const themes = {
           text: {
               primary: '#000000',
           },
-      },
-      typography: {
-          fontSize: baseFontSize,
       },
   },
   dark: {
@@ -31,9 +26,6 @@ export const themes = {
               primary: '#ffffff',
           },
       },
-      typography: {
-          fontSize: baseFontSize,
-      },
   },
   brown: {
       palette: {
@@ -47,9 +39,6 @@ export const themes = {
           text: {
               primary: '#000000',
           },
-      },
-      typography: {
-          fontSize: baseFontSize,
       },
   },
 };

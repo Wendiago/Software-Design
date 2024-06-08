@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { Button, Paper, List, ListItem, Typography } from '@mui/material';
+import { 
+  Button, 
+  Paper, 
+  List, 
+  ListItem, 
+  ListItemText, 
+  Typography, 
+  useTheme 
+} from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import { normalizeString } from '../../utils/stringUtils';
@@ -53,6 +61,7 @@ const Root = styled('div')(({ theme }) => ({
 const ChapterListFloating = ({ title, chapters }) => {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const navigate = useNavigate();
+  const theme = useTheme();
 
   const handleTogglePanel = () => {
     setIsPanelOpen(!isPanelOpen);
@@ -65,7 +74,9 @@ const ChapterListFloating = ({ title, chapters }) => {
   };
 
   const formatChapter = (chapter) => chapter.replace('chuong-', 'Chương ');
-
+  const novelListReaded = JSON.parse(localStorage.getItem('novelListReaded')) || [];
+  const readChapters = novelListReaded.find(novel => normalizeString(novel.title) === title)?.chapters || [];
+  
   return (
     <Root className={classes.root}>
         {isPanelOpen ? (
@@ -83,7 +94,11 @@ const ChapterListFloating = ({ title, chapters }) => {
                         className={classes.listItem} 
                         onClick={() => handleChapter(chapter)}
                     >
-                        {formatChapter(chapter)}
+                      <ListItemText 
+                        primary={formatChapter(chapter)}
+                        style={{ color: readChapters.includes((chapter)) ? theme.palette.text.secondary : theme.palette.text.primary }}
+                      />
+                        
                     </ListItem>
                     ))}
                 </List>

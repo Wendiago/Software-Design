@@ -27,8 +27,6 @@ export function useNovelChapterList(title, pageNumber) {
     queryFn: () => novelAPI.getNovelChapterList({ title, pageNumber, source }),
   });
 
-  console.log(data)
-
   return { isPending, error, data };
 }
 

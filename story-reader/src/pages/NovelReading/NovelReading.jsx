@@ -28,6 +28,9 @@ const Root = styled("div")(({ theme }) => ({
   [`& .${classes.paper}`]: {
     backgroundColor: theme.palette.background.paper,
     whiteSpace: "pre-line",
+    fontSize: "var(--font-size)",
+    lineHeight: "var(--line-height)",
+    fontFamily: "var(--font-family)",
   },
   [`& .${classes.root}`]: {
     marginLeft: "10%",
@@ -35,6 +38,9 @@ const Root = styled("div")(({ theme }) => ({
   [`& .${classes.content}`]: {
     marginLeft: "5%",
     marginRight: "5%",
+    fontSize: "var(--font-size)",
+    lineHeight: "var(--line-height)",
+    fontFamily: "var(--font-family)",
   },
 }));
 
@@ -90,20 +96,31 @@ const NovelReading = () => {
   }
 
   function updateLocalStorage(title, chapter) {
-    const novel = { title, chapter };
-    let novelList = JSON.parse(localStorage.getItem("novelList")) || [];
+    if (title) {
+      const novel = { title, chapter };
+      let novelList = JSON.parse(localStorage.getItem("novelListRecently")) || [];
+      let novelListReaded = JSON.parse(localStorage.getItem('novelListReaded')) || [];
+  
+      const novelIndex = novelList.findIndex((item) => item.title === title);
+      const novelIndexReaded = novelListReaded.findIndex(item => item.title === title);
+  
+      if (novelIndex === -1) {
+        novelList.push(novel);
+      } else {
+        novelList[novelIndex] = novel;
+      }
 
-    const novelIndex = novelList.findIndex((item) => item.title === title);
-
-    if (novelIndex === -1) {
-      novelList.push(novel);
-    } else {
-      novelList[novelIndex] = novel;
+      if (novelIndexReaded === -1) {
+        novelListReaded.push({ title, chapters: [chapter] });
+      } else {
+        if (!novelListReaded[novelIndexReaded].chapters.includes(chapter)) {
+          novelListReaded[novelIndexReaded].chapters.push(chapter);
+        }
+      }
+  
+      localStorage.setItem("novelListRecently", JSON.stringify(novelList));
+      localStorage.setItem('novelListReaded', JSON.stringify(novelListReaded));
     }
-
-    console.log(novelList);
-
-    localStorage.setItem("novelList", JSON.stringify(novelList));
   }
 
   const handlePrevious = () => {

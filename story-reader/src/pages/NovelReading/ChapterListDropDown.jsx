@@ -1,5 +1,10 @@
 import React from 'react';
-import { Select, MenuItem, Paper } from '@mui/material';
+import { 
+  Select, 
+  MenuItem, 
+  Paper,
+  useTheme
+} from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import { normalizeString } from '../../utils/stringUtils';
@@ -55,15 +60,16 @@ const CustomMenuItem = styled(MenuItem)(({ theme }) => ({
 
 const ChapterListDropDown = ({ title, chapters }) => {
   const navigate = useNavigate();
+  const theme = useTheme();
 
   const handleChapter = (chapterNumber) => {
     navigate(`/doc-truyen/${normalizeString(title)}/${chapterNumber}`);
     window.location.reload();
   };
 
-  const formatChapter = (chapter) => {
-    return chapter?.replace('chuong-', 'Chương ');
-  };
+  const formatChapter = (chapter) => chapter.replace('chuong-', 'Chương ');
+  const novelListReaded = JSON.parse(localStorage.getItem('novelListReaded')) || [];
+  const readChapters = novelListReaded.find(novel => normalizeString(novel.title) === title)?.chapters || [];
 
   return (
     <Root>
@@ -86,7 +92,9 @@ const ChapterListDropDown = ({ title, chapters }) => {
         </CustomMenuItem>
         {chapters?.map((chapter, index) => (
             <CustomMenuItem key={index} value={chapter}>
-            {formatChapter(chapter)}
+              <div style={{ color: readChapters.includes((chapter)) ? theme.palette.text.secondary : theme.palette.text.primary }}>
+              {formatChapter(chapter)}
+              </div>
             </CustomMenuItem>
         ))}
         </CustomSelect>

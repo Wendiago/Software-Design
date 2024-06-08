@@ -62,10 +62,13 @@ const ChapterList = ({ title }) => {
     error: chaptersError,
     data: { chapters, total_pages } = {},
   } = useNovelChapterList(title, page);
+  
+  const formatChapter = (chapterNumber) => {
+    return normalizeString(chapterNumber.split(":")[0]);
+  }
 
   const handleChapter = (chapterNumber) => {
-    const normalizeChapter = normalizeString(chapterNumber.split(":")[0]);
-    navigate(`/doc-truyen/${normalizeString(title)}/${normalizeChapter}`);
+    navigate(`/doc-truyen/${normalizeString(title)}/${formatChapter(chapterNumber)}`);
   };
 
   const handlePageChange = (event, value) => {
@@ -86,6 +89,9 @@ const ChapterList = ({ title }) => {
     return <Loading />;
   }
 
+  const novelListReaded = JSON.parse(localStorage.getItem('novelListReaded')) || [];
+  const readChapters = novelListReaded.find(novel => normalizeString(novel.title) === title)?.chapters || [];
+  
   return (
     <Root>
       <Paper className={classes.paper}>
@@ -96,7 +102,11 @@ const ChapterList = ({ title }) => {
           <List>
             {chapters?.map((chapter, index) => (
               <ListItem key={index} onClick={() => handleChapter(chapter)}>
-                <ListItemText className={classes.item} primary={chapter} />
+                <ListItemText 
+                  className={classes.item} 
+                  primary={chapter}
+                  style={{ color: readChapters.includes(formatChapter(chapter)) ? theme.palette.text.secondary : theme.palette.text.primary }}
+                />
               </ListItem>
             ))}
           </List>
@@ -106,7 +116,11 @@ const ChapterList = ({ title }) => {
               <List>
                 {leftChapters?.map((chapter, index) => (
                   <ListItem key={index} onClick={() => handleChapter(chapter)}>
-                    <ListItemText className={classes.item} primary={chapter} />
+                    <ListItemText 
+                      className={classes.item} 
+                      primary={chapter}
+                      style={{ color: readChapters.includes(formatChapter(chapter)) ? theme.palette.text.secondary : theme.palette.text.primary }}
+                    />
                   </ListItem>
                 ))}
               </List>
@@ -115,7 +129,11 @@ const ChapterList = ({ title }) => {
               <List>
                 {rightChapters?.map((chapter, index) => (
                   <ListItem key={index} onClick={() => handleChapter(chapter)}>
-                    <ListItemText className={classes.item} primary={chapter} />
+                    <ListItemText 
+                      className={classes.item} 
+                      primary={chapter}
+                      style={{ color: readChapters.includes(formatChapter(chapter)) ? theme.palette.text.secondary : theme.palette.text.primary }}
+                    />
                   </ListItem>
                 ))}
               </List>

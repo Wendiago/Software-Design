@@ -28,7 +28,7 @@ const Homepage = () => {
   };
 
   useEffect(() => {
-    const storedNovelList = JSON.parse(localStorage.getItem("novelList")) || [];
+    const storedNovelList = JSON.parse(localStorage.getItem("novelListRecently")) || [];
     setNovelList(storedNovelList);
   }, []);
 
