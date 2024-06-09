@@ -3,6 +3,7 @@ import { Typography, Grid, Paper, Box, Rating, Button } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import { normalizeString } from "../../utils/stringUtils";
+import { DownloadButton } from "../../components";
 
 const PREFIX = "NovelInfo";
 const classes = {
@@ -118,6 +119,7 @@ const NovelInfo = ({ novel }) => {
                 {novel?.rating}/10
               </Typography>
             </Box>
+            <DownloadButton title={novel?.title}/>
             <Typography variant="body2" className={classes.description}>
               {showMore ? novel?.description : shortDescription}
             </Typography>

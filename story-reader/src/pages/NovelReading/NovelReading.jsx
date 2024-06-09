@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Container, Grid, Box, Button, Typography, Paper } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useParams, useNavigate } from "react-router-dom";
-import { Breadcrumb, Loading } from "../../components";
+import { Breadcrumb, Loading, DownloadButton } from "../../components";
 import ChapterListDropDown from "./ChapterListDropDown";
 import ChapterListFloating from './ChapterListFloating';
 import { useAllSources } from "../../hooks/useAllSources";
@@ -192,6 +192,7 @@ const NovelReading = () => {
                 Server {index + 1}
               </NavButton>
             ))}
+            <DownloadButton title={title}/>
           </Box>
         </NavigationContainer>
         <Typography
@@ -234,6 +235,7 @@ const NovelReading = () => {
                 Server {index + 1}
               </NavButton>
             ))}
+            <DownloadButton title={title}/>
           </Box>
         </NavigationContainer>
       </Paper>
