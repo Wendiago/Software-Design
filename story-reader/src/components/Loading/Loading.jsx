@@ -1,6 +1,6 @@
-import React from "react";
-import ReactLoading from "react-loading";
-import { useTheme } from "@mui/material/styles";
+import React from 'react';
+import ReactLoading from 'react-loading';
+import { useTheme } from '@mui/material/styles';
 
 const Loading = () => {
   const theme = useTheme();
@@ -9,7 +9,7 @@ const Loading = () => {
     <div className="fixed inset-0 flex items-center justify-center ">
       <div className="m-auto">
         <ReactLoading
-          type={"spinningBubbles"}
+          type={'spinningBubbles'}
           height={50}
           width={50}
           color={theme.palette.text.primary}

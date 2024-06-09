@@ -1,12 +1,10 @@
-import customAxios from "./customAPI";
+import customAxios from './customAPI';
 
-class sourceAPI {
+class SourceAPI {
   async getAllSources() {
-    const response = await customAxios.get(`/sources`);
+    const response = await customAxios.get('/sources');
     return response.data;
-
-    // return error.response;
   }
 }
 
-export default new sourceAPI();
+export default new SourceAPI();

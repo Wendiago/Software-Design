@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   List,
   ListItem,
@@ -9,15 +9,16 @@ import {
   Pagination,
   useMediaQuery,
   useTheme,
-} from "@mui/material";
-import { styled } from "@mui/material/styles";
-import { useNavigate } from "react-router-dom";
-import { normalizeString } from "../../utils/stringUtils";
-import { Loading } from "../../components";
-import { useNovelChapterList } from "../../hooks/novelHook";
-import toast from "react-hot-toast";
+} from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { useNavigate } from 'react-router-dom';
+import { normalizeString } from '../../utils/stringUtils';
+import { Loading } from '../../components';
+import { useNovelChapterList } from '../../hooks/novelHook';
+import toast from 'react-hot-toast';
+import PropTypes from 'prop-types';
 
-const PREFIX = "ChapterList";
+const PREFIX = 'ChapterList';
 const classes = {
   root: `${PREFIX}-root`,
   list: `${PREFIX}-list`,
@@ -27,7 +28,7 @@ const classes = {
   item: `${PREFIX}-item`,
 };
 
-const Root = styled("div")(({ theme }) => ({
+const Root = styled('div')(({ theme }) => ({
   [`& .${classes.paper}`]: {
     backgroundColor: theme.palette.background.paper,
   },
@@ -41,12 +42,12 @@ const Root = styled("div")(({ theme }) => ({
     padding: theme.spacing(2),
   },
   [`& .${classes.pagination}`]: {
-    display: "flex",
-    justifyContent: "center",
+    display: 'flex',
+    justifyContent: 'center',
     padding: theme.spacing(2),
   },
   [`& .${classes.item}`]: {
-    cursor: "pointer",
+    cursor: 'pointer',
   },
 }));
 
@@ -55,17 +56,17 @@ const ChapterList = ({ title }) => {
   const [page, setPage] = useState(1);
 
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const {
     isPending: isLoadingChapters,
     error: chaptersError,
-    data: { chapters, total_pages } = {},
+    data: { chapters, total_pages: totalPages } = {},
   } = useNovelChapterList(title, page);
   
   const formatChapter = (chapterNumber) => {
-    return normalizeString(chapterNumber.split(":")[0]);
-  }
+    return normalizeString(chapterNumber.split(':')[0]);
+  };
 
   const handleChapter = (chapterNumber) => {
     navigate(`/doc-truyen/${normalizeString(title)}/${formatChapter(chapterNumber)}`);
@@ -83,7 +84,7 @@ const ChapterList = ({ title }) => {
   const [leftChapters, rightChapters] = splitChapters();
 
   if (chaptersError)
-    toast.error(chaptersError.message || chaptersError.response);
+  {toast.error(chaptersError.message || chaptersError.response);}
 
   if (isLoadingChapters) {
     return <Loading />;
@@ -142,7 +143,7 @@ const ChapterList = ({ title }) => {
         )}
         <div className={classes.pagination}>
           <Pagination
-            count={total_pages}
+            count={totalPages}
             page={page}
             onChange={handlePageChange}
             color="primary"
@@ -153,6 +154,10 @@ const ChapterList = ({ title }) => {
       </Paper>
     </Root>
   );
+};
+
+ChapterList.propTypes = {
+  title: PropTypes.string.isRequired,
 };
 
 export default ChapterList;

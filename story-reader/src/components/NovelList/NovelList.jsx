@@ -8,6 +8,7 @@ import {
 import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import { normalizeString } from '../../utils/stringUtils';
+import PropTypes from 'prop-types';
 
 const PREFIX = 'NovelList';
 const classes = {
@@ -89,6 +90,16 @@ const NovelList = ({ novels }) => {
       </Grid>
     </Root>
   );
+};
+
+NovelList.propTypes = {
+  novels: PropTypes.arrayOf(
+    PropTypes.shape({
+      imageUrl: PropTypes.string.isRequired,
+      title: PropTypes.string.isRequired,
+      author: PropTypes.string.isRequired,
+    })
+  ).isRequired,
 };
 
 export default NovelList;

@@ -5,21 +5,22 @@ import { useAllSources } from '../../hooks/useAllSources';
 import { Button } from '@mui/material';
 import { FaCloudDownloadAlt } from 'react-icons/fa';
 import { useAllSupportFileFormats } from '../../hooks/supportFileFormatHook';
+import PropTypes from 'prop-types';
 
 function NovelDownloadButton({ title }) {
   const { source } = useAllSources();
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState(null);
-  const { file_formats } = useAllSupportFileFormats();
+  const { fileFormats } = useAllSupportFileFormats();
   
-  const handleDownload = async (file_format) => {
+  const handleDownload = async (fileFormat) => {
     setIsPending(true);
     setError(null);
 
     try {
-        const data = await downloadAPI.downloadNovel({ title, source, file_format });
-        const blob = new Blob([data], { type: `application/${file_format}` }); 
-        saveAs(blob, `${title}.${file_format}`);
+      const data = await downloadAPI.downloadNovel({ title, source, fileFormat });
+      const blob = new Blob([data], { type: `application/${fileFormat}` }); 
+      saveAs(blob, `${title}.${fileFormat}`);
     } catch (err) {
       setError(err);
     } finally {
@@ -32,9 +33,9 @@ function NovelDownloadButton({ title }) {
       <div>
         {isPending ? 'Đang tải...' : ''}
         &nbsp;
-        {file_formats?.map((file_format, index) => (
-          <Button key={index} onClick={() => {handleDownload(file_format)}} disabled={isPending}>
-            {file_format}
+        {fileFormats?.map((fileFormat, index) => (
+          <Button key={index} onClick={() => {handleDownload(fileFormat);}} disabled={isPending}>
+            {fileFormat}
             &nbsp;
             <FaCloudDownloadAlt />
           </Button>
@@ -44,5 +45,9 @@ function NovelDownloadButton({ title }) {
     </div>
   );
 }
+
+NovelDownloadButton.propTypes = {
+  title: PropTypes.string.isRequired,
+};
 
 export default NovelDownloadButton;

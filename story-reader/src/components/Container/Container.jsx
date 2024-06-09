@@ -1,9 +1,10 @@
-import React, { useState } from "react";
-import { Header } from "../../components";
-import { useTheme, Button } from "@mui/material";
-import { useEffect } from "react";
-import { Outlet } from "react-router-dom";
-import { FaChevronUp, FaChevronDown } from "react-icons/fa";
+import React, { useState } from 'react';
+import { Header } from '../../components';
+import { useTheme, Button } from '@mui/material';
+import { useEffect } from 'react';
+import { Outlet } from 'react-router-dom';
+import { FaChevronUp, FaChevronDown } from 'react-icons/fa';
+import PropTypes from 'prop-types';
 
 const Container = ({ selectedTheme, toggleTheme }) => {
   const [isOpen, setOpen] = useState(true);
@@ -33,13 +34,13 @@ const Container = ({ selectedTheme, toggleTheme }) => {
             style={{
               position: 'fixed', 
               top: '70px', 
-              left: '10px', 
+              left: '0px', 
               backgroundColor: theme.palette.background.default
             }}
             onClick={handleClose}>
             <FaChevronUp/>
           </Button>
-          <div style={{ marginTop: '63px' }} className="flex-1">
+          <div style={{ marginTop: '80px' }} className="flex-1">
             <Outlet />
           </div>
         </>
@@ -49,19 +50,24 @@ const Container = ({ selectedTheme, toggleTheme }) => {
             style={{
               position: 'fixed', 
               top: '0px', 
-              left: '10px', 
+              left: '0px', 
               backgroundColor: theme.palette.background.default 
             }}
             onClick={handleOpen}>
             <FaChevronDown/>
           </Button>
-          <div className="flex-1">
+          <div style={{ marginTop: '20px' }} className="flex-1">
             <Outlet />
           </div>
         </>
       )}
     </div>
   );
+};
+
+Container.propTypes = {
+  selectedTheme: PropTypes.string.isRequired,
+  toggleTheme: PropTypes.func.isRequired
 };
 
 export default Container;

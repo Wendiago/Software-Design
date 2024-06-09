@@ -12,6 +12,7 @@ import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import { normalizeString } from '../../utils/stringUtils';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa'; 
+import PropTypes from 'prop-types';
 
 const PREFIX = 'ChapterListFloating';
 const classes = {
@@ -79,37 +80,42 @@ const ChapterListFloating = ({ title, chapters }) => {
   
   return (
     <Root className={classes.root}>
-        {isPanelOpen ? (
-            <Paper className={classes.floatingPanel}>
-                <Typography variant="h6">
-                    <Button onClick={handleTogglePanel}>
-                        <FaChevronRight/>
-                    </Button>
+      {isPanelOpen ? (
+        <Paper className={classes.floatingPanel}>
+          <Typography variant="h6">
+            <Button onClick={handleTogglePanel}>
+              <FaChevronRight/>
+            </Button>
                     Chọn chương
-                </Typography>
-                <List className={classes.list}>
-                    {chapters?.map((chapter, index) => (
-                    <ListItem 
-                        key={index} 
-                        className={classes.listItem} 
-                        onClick={() => handleChapter(chapter)}
-                    >
-                      <ListItemText 
-                        primary={formatChapter(chapter)}
-                        style={{ color: readChapters.includes((chapter)) ? theme.palette.text.secondary : theme.palette.text.primary }}
-                      />
+          </Typography>
+          <List className={classes.list}>
+            {chapters?.map((chapter, index) => (
+              <ListItem 
+                key={index} 
+                className={classes.listItem} 
+                onClick={() => handleChapter(chapter)}
+              >
+                <ListItemText 
+                  primary={formatChapter(chapter)}
+                  style={{ color: readChapters.includes((chapter)) ? theme.palette.text.secondary : theme.palette.text.primary }}
+                />
                         
-                    </ListItem>
-                    ))}
-                </List>
-            </Paper>
-        ) : (
+              </ListItem>
+            ))}
+          </List>
+        </Paper>
+      ) : (
         <Button className={classes.button} onClick={handleTogglePanel}>
-            <FaChevronLeft/>
+          <FaChevronLeft/>
         </Button>
-        )}
+      )}
     </Root>
   );
+};
+
+ChapterListFloating.propTypes = {
+  title: PropTypes.string.isRequired,
+  chapters: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
 };
 
 export default ChapterListFloating;

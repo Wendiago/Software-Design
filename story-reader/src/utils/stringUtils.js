@@ -8,20 +8,20 @@
  * @returns {string} - The normalized string
  */
 export function normalizeString(str) {
-    const map = {
-        'đ': 'd',
-        'Đ': 'D'
-    };
+  const map = {
+    'đ': 'd',
+    'Đ': 'D'
+  };
 
-    const normalizedStr = str
-        .normalize('NFD')
-        .replace(/[đĐ]/g, match => map[match])
-        .replace(/[\u0021-\u002c]/g, '')
-        .replace(/[\u002e-\u002f]/g, '')
-        .replace(/[\u003a-\u0040]/g, '')
-        .replace(/[\u005b-\u0060]/g, '')
-        .replace(/[\u007b-\u1eff]/g, '');
+  const normalizedStr = str
+    .normalize('NFD')
+    .replace(/[đĐ]/g, match => map[match])
+    .replace(/[\u0021-\u002c]/g, '')
+    .replace(/[\u002e-\u002f]/g, '')
+    .replace(/[\u003a-\u0040]/g, '')
+    .replace(/[\u005b-\u0060]/g, '')
+    .replace(/[\u007b-\u1eff]/g, '');
 
-    const result = normalizedStr.toLowerCase().replace(/\s+/g, '-');
-    return result;
+  const result = normalizedStr.toLowerCase().replace(/\s+/g, '-');
+  return result;
 }

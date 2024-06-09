@@ -1,21 +1,21 @@
-import React, { useEffect, useState } from "react";
-import { Card, CardContent, Typography, Grid, Container } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import { useNavigate } from "react-router-dom";
-import { normalizeString } from "../../utils/stringUtils";
+import React, { useEffect, useState } from 'react';
+import { Card, CardContent, Typography, Grid, Container } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { useNavigate } from 'react-router-dom';
+import { normalizeString } from '../../utils/stringUtils';
 
-const PREFIX = "Homepage";
+const PREFIX = 'Homepage';
 const classes = {
   root: `${PREFIX}-root`,
   item: `${PREFIX}-item`,
 };
 
-const Root = styled("div")(({ theme }) => ({
+const Root = styled('div')(({ theme }) => ({
   [`& .${classes.root}`]: {
     marginTop: theme.spacing(2),
   },
   [`& .${classes.item}`]: {
-    cursor: "pointer",
+    cursor: 'pointer',
   },
 }));
 
@@ -24,11 +24,11 @@ const Homepage = () => {
   const navigate = useNavigate();
 
   const formatChapter = (chapter) => {
-    return chapter?.replace("chuong-", "Chương ");
+    return chapter?.replace('chuong-', 'Chương ');
   };
 
   useEffect(() => {
-    const storedNovelList = JSON.parse(localStorage.getItem("novelListRecently")) || [];
+    const storedNovelList = JSON.parse(localStorage.getItem('novelListRecently')) || [];
     setNovelList(storedNovelList);
   }, []);
 

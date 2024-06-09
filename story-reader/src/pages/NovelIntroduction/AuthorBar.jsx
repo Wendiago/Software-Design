@@ -1,19 +1,20 @@
-import React from "react";
+import React from 'react';
 import {
   Typography,
   List,
   ListItem,
   ListItemText,
   Container,
-} from "@mui/material";
-import { styled } from "@mui/material/styles";
-import { useNavigate } from "react-router-dom";
-import { normalizeString } from "../../utils/stringUtils";
-import { Loading } from "../../components";
-import { useNovelSearched } from "../../hooks/novelHook";
-import toast from "react-hot-toast";
+} from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { useNavigate } from 'react-router-dom';
+import { normalizeString } from '../../utils/stringUtils';
+import { Loading } from '../../components';
+import { useNovelSearched } from '../../hooks/novelHook';
+import toast from 'react-hot-toast';
+import PropTypes from 'prop-types';
 
-const PREFIX = "AuthorBar";
+const PREFIX = 'AuthorBar';
 const classes = {
   root: `${PREFIX}-root`,
   section: `${PREFIX}-section`,
@@ -21,7 +22,7 @@ const classes = {
   item: `${PREFIX}-item`,
 };
 
-const Root = styled("div")(({ theme }) => ({
+const Root = styled('div')(({ theme }) => ({
   [`&.${classes.root}`]: {
     flexGrow: 1,
     marginTop: theme.spacing(2),
@@ -33,7 +34,7 @@ const Root = styled("div")(({ theme }) => ({
     marginBottom: theme.spacing(2),
   },
   [`& .${classes.item}`]: {
-    cursor: "pointer",
+    cursor: 'pointer',
   },
 }));
 
@@ -52,7 +53,7 @@ const AuthorBar = ({ title, author }) => {
 
   const filteredNovels = novels?.filter((novel) => novel.title !== title);
 
-  if (novelsError) toast.error(novelsError.message || novelsError.response);
+  if (novelsError) {toast.error(novelsError.message || novelsError.response);}
 
   if (isLoadingNovels) {
     return <Loading />;
@@ -92,6 +93,11 @@ const AuthorBar = ({ title, author }) => {
       </Container>
     </Root>
   );
+};
+
+AuthorBar.propTypes = {
+  title: PropTypes.string.isRequired,
+  author: PropTypes.string.isRequired,
 };
 
 export default AuthorBar;

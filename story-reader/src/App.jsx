@@ -1,11 +1,11 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { Toaster } from "react-hot-toast";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
-import { themes } from "./theme/themes";
-import React, { useState } from "react";
-import { Container } from "./components";
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { Toaster } from 'react-hot-toast';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { themes } from './theme/themes';
+import React, { useState } from 'react';
+import { Container } from './components';
 import {
   Homepage,
   Categories,
@@ -13,8 +13,8 @@ import {
   NovelIntroduction,
   NovelReading,
   AuthorRelated,
-} from "./pages";
-import "./App.css";
+} from './pages';
+import './App.css';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -27,14 +27,14 @@ const queryClient = new QueryClient({
 
 function App() {
   const [selectedTheme, setSelectedTheme] = useState(() => {
-    const savedTheme = localStorage.getItem("theme");
-    return savedTheme || "light";
+    const savedTheme = localStorage.getItem('theme');
+    return savedTheme || 'light';
   });
 
   const theme = createTheme(themes[selectedTheme]);
   const toggleTheme = (theme) => {
     setSelectedTheme(theme);
-    localStorage.setItem("theme", theme);
+    localStorage.setItem('theme', theme);
   };
 
   return (
@@ -73,7 +73,7 @@ function App() {
 
       <Toaster
         gutter={12}
-        containerStyle={{ margin: "8px" }}
+        containerStyle={{ margin: '8px' }}
         position="top-center"
         toastOptions={{
           success: {
@@ -83,11 +83,11 @@ function App() {
             duration: 5000,
           },
           style: {
-            fontSize: "16px",
-            maxWidth: "500px",
-            padding: "16px 24px",
-            backgroundColor: "#fff",
-            color: "#384252",
+            fontSize: '16px',
+            maxWidth: '500px',
+            padding: '16px 24px',
+            backgroundColor: '#fff',
+            color: '#384252',
           },
         }}
       />

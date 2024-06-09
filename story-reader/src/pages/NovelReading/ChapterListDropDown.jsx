@@ -8,6 +8,7 @@ import {
 import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import { normalizeString } from '../../utils/stringUtils';
+import PropTypes from 'prop-types';
 
 const PREFIX = 'ChapterList';
 const classes = {
@@ -48,14 +49,14 @@ const Root = styled('div')(({ theme }) => ({
 }));
 
 const CustomSelect = styled(Select)(({ theme }) => ({
-    color: theme.palette.primary.main,
+  color: theme.palette.primary.main,
 }));
 
 const CustomMenuItem = styled(MenuItem)(({ theme }) => ({
-    color: theme.palette.text.primary,
-    '&.Mui-selected': {
-        color: theme.palette.primary.main,
-    },
+  color: theme.palette.text.primary,
+  '&.Mui-selected': {
+    color: theme.palette.primary.main,
+  },
 }));
 
 const ChapterListDropDown = ({ title, chapters }) => {
@@ -75,32 +76,37 @@ const ChapterListDropDown = ({ title, chapters }) => {
     <Root>
       <Paper className={classes.paper}>
         <CustomSelect
-        className={classes.select}
-        value=""
-        onChange={(event) => handleChapter(event.target.value)}
-        displayEmpty
-        MenuProps={{
+          className={classes.select}
+          value=""
+          onChange={(event) => handleChapter(event.target.value)}
+          displayEmpty
+          MenuProps={{
             PaperProps: {
-            style: {
+              style: {
                 maxHeight: 400,
+              },
             },
-            },
-        }}
+          }}
         >
-        <CustomMenuItem value="" disabled>
+          <CustomMenuItem value="" disabled>
           Chọn chương
-        </CustomMenuItem>
-        {chapters?.map((chapter, index) => (
+          </CustomMenuItem>
+          {chapters?.map((chapter, index) => (
             <CustomMenuItem key={index} value={chapter}>
               <div style={{ color: readChapters.includes((chapter)) ? theme.palette.text.secondary : theme.palette.text.primary }}>
-              {formatChapter(chapter)}
+                {formatChapter(chapter)}
               </div>
             </CustomMenuItem>
-        ))}
+          ))}
         </CustomSelect>
       </Paper>
     </Root>
   );
+};
+
+ChapterListDropDown.propTypes = {
+  title: PropTypes.string.isRequired,
+  chapters: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
 };
 
 export default ChapterListDropDown;

@@ -1,27 +1,27 @@
-import React, { useState } from "react";
-import { Container, Pagination } from "@mui/material";
-import { Breadcrumb, NovelList, Loading } from "../../components";
-import { styled } from "@mui/material/styles";
-import { useParams } from "react-router-dom";
-import { useNovelSearched } from "../../hooks/novelHook";
-import toast from "react-hot-toast";
+import React, { useState } from 'react';
+import { Container, Pagination } from '@mui/material';
+import { Breadcrumb, NovelList, Loading } from '../../components';
+import { styled } from '@mui/material/styles';
+import { useParams } from 'react-router-dom';
+import { useNovelSearched } from '../../hooks/novelHook';
+import toast from 'react-hot-toast';
 
-const PREFIX = "AuthorRelated";
+const PREFIX = 'AuthorRelated';
 const classes = {
   root: `${PREFIX}-root`,
   pagination: `${PREFIX}-pagination`,
 };
 
-const Root = styled("div")(({ theme }) => ({
+const Root = styled('div')(({ theme }) => ({
   [`&.${classes.root}`]: {
     flexGrow: 1,
     backgroundColor: theme.palette.background.default,
     color: theme.palette.text.primary,
-    minHeight: "100vh",
+    minHeight: '100vh',
   },
   [`& .${classes.pagination}`]: {
-    display: "flex",
-    justifyContent: "center",
+    display: 'flex',
+    justifyContent: 'center',
     padding: theme.spacing(2, 0),
   },
 }));
@@ -37,7 +37,7 @@ const AuthorRelated = () => {
   const {
     isPending: isLoadingNovels,
     error: novelsError,
-    data: { novels, total_pages } = {},
+    data: { novels, total_pages: totalPages } = {},
   } = useNovelSearched(author, page);
 
   const breadcrumbs = [
@@ -47,7 +47,7 @@ const AuthorRelated = () => {
     },
   ];
 
-  if (novelsError) toast.error(novelsError.message || novelsError.response);
+  if (novelsError) {toast.error(novelsError.message || novelsError.response);}
 
   if (isLoadingNovels) {
     return <Loading />;
@@ -60,7 +60,7 @@ const AuthorRelated = () => {
         <NovelList novels={novels} />
         <div className={classes.pagination}>
           <Pagination
-            count={total_pages}
+            count={totalPages}
             page={page}
             onChange={handlePageChange}
             showFirstButton

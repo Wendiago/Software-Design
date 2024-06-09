@@ -1,15 +1,15 @@
-import React from "react";
-import { Container, Grid, useMediaQuery, useTheme } from "@mui/material";
-import NovelInfo from "./NovelInfo";
-import ChapterList from "./ChapterList";
-import AuthorBar from "./AuthorBar";
-import { Breadcrumb, Loading } from "../../components";
-import { styled } from "@mui/material/styles";
-import { useParams } from "react-router-dom";
-import { useNovelDetail } from "../../hooks/novelHook";
-import toast from "react-hot-toast";
+import React from 'react';
+import { Container, Grid, useMediaQuery, useTheme } from '@mui/material';
+import NovelInfo from './NovelInfo';
+import ChapterList from './ChapterList';
+import AuthorBar from './AuthorBar';
+import { Breadcrumb, Loading } from '../../components';
+import { styled } from '@mui/material/styles';
+import { useParams } from 'react-router-dom';
+import { useNovelDetail } from '../../hooks/novelHook';
+import toast from 'react-hot-toast';
 
-const PREFIX = "NovelIntroduction";
+const PREFIX = 'NovelIntroduction';
 const classes = {
   root: `${PREFIX}-root`,
   sidebar: `${PREFIX}-sidebar`,
@@ -17,19 +17,19 @@ const classes = {
   breadcrumbs: `${PREFIX}-breadcrumbs`,
 };
 
-const Root = styled("div")(({ theme }) => ({
+const Root = styled('div')(({ theme }) => ({
   [`&.${classes.root}`]: {
-    display: "flex",
+    display: 'flex',
   },
   [`& .${classes.sidebar}`]: {
-    width: "30%",
+    width: '30%',
   },
   [`& .${classes.content}`]: {
-    width: "70%",
+    width: '70%',
     padding: theme.spacing(2),
   },
   [`& .${classes.breadcrumbs}`]: {
-    width: "100%",
+    width: '100%',
   },
 }));
 
@@ -50,10 +50,10 @@ const NovelIntroduction = () => {
   ];
 
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   if (novelDetailError)
-    toast.error(novelDetailError.message || novelDetailError.response);
+  {toast.error(novelDetailError.message || novelDetailError.response);}
 
   if (isLoadingNovelDetail) {
     return <Loading />;

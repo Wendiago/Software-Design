@@ -2,6 +2,7 @@ import React from 'react';
 import { Breadcrumbs, Link } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 const PREFIX = 'Breadcrumb';
 const classes = {
@@ -38,6 +39,10 @@ const Breadcrumb = ({ breadcrumbs }) => {
       </Breadcrumbs>
     </Root>
   );
+};
+
+Breadcrumb.propTypes = {
+  breadcrumbs: PropTypes.array.isRequired
 };
 
 export default Breadcrumb;

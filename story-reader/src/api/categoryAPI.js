@@ -1,18 +1,18 @@
-import customAxios from "./customAPI";
+import customAxios from './customAPI';
 
-class categoryAPI {
+class CategoryAPI {
   async getAllCategories({ source }) {
     if (!source)
-      throw new Error("No source provided or currently available 💥");
+    {throw new Error('No source provided or currently available 💥');}
 
-    const response = await customAxios.post(`/categories`, source);
+    const response = await customAxios.post('/categories', source);
     return response.data;
   }
 
   async getNovelByCategory({ category, pageNumber = 1, source }) {
-    if (!category) throw new Error("No category specified 💥");
+    if (!category) {throw new Error('No category specified 💥');}
     if (!source)
-      throw new Error("No source provided or currently available 💥");
+    {throw new Error('No source provided or currently available 💥');}
 
     const response = await customAxios.post(
       `/category/${category}?page=${pageNumber}`,
@@ -22,4 +22,4 @@ class categoryAPI {
   }
 }
 
-export default new categoryAPI();
+export default new CategoryAPI();

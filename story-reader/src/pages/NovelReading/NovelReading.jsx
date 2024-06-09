@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { Container, Grid, Box, Button, Typography, Paper } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import { useParams, useNavigate } from "react-router-dom";
-import { Breadcrumb, Loading, DownloadButton } from "../../components";
-import ChapterListDropDown from "./ChapterListDropDown";
+import React, { useState, useEffect } from 'react';
+import { Container, Grid, Box, Button, Typography, Paper } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Breadcrumb, Loading, DownloadButton } from '../../components';
+import ChapterListDropDown from './ChapterListDropDown';
 import ChapterListFloating from './ChapterListFloating';
-import { useAllSources } from "../../hooks/useAllSources";
+import { useAllSources } from '../../hooks/useAllSources';
 import {
   useNovelChapterContent,
   useNovelChapterList,
   useNovelDetail,
-} from "../../hooks/novelHook";
+} from '../../hooks/novelHook';
 
-const PREFIX = "NovelReading";
+const PREFIX = 'NovelReading';
 const classes = {
   root: `${PREFIX}-root`,
   title: `${PREFIX}-title`,
@@ -20,32 +20,32 @@ const classes = {
   content: `${PREFIX}-content`,
 };
 
-const Root = styled("div")(({ theme }) => ({
+const Root = styled('div')(({ theme }) => ({
   [`& .${classes.title}`]: {
-    textTransform: "uppercase",
+    textTransform: 'uppercase',
     marginBottom: theme.spacing(1),
   },
   [`& .${classes.paper}`]: {
     backgroundColor: theme.palette.background.paper,
-    whiteSpace: "pre-line",
-    fontSize: "var(--font-size)",
-    lineHeight: "var(--line-height)",
-    fontFamily: "var(--font-family)",
+    whiteSpace: 'pre-line',
+    fontSize: 'var(--font-size)',
+    lineHeight: 'var(--line-height)',
+    fontFamily: 'var(--font-family)',
   },
   [`& .${classes.root}`]: {
-    marginLeft: "10%",
+    marginLeft: '10%',
   },
   [`& .${classes.content}`]: {
-    marginLeft: "5%",
-    marginRight: "5%",
-    fontSize: "var(--font-size)",
-    lineHeight: "var(--line-height)",
-    fontFamily: "var(--font-family)",
+    marginLeft: '5%',
+    marginRight: '5%',
+    fontSize: 'var(--font-size)',
+    lineHeight: 'var(--line-height)',
+    fontFamily: 'var(--font-family)',
   },
 }));
 
 const NavigationContainer = styled(Container)(({ theme }) => ({
-  textAlign: "center",
+  textAlign: 'center',
   padding: theme.spacing(2),
   borderRadius: theme.shape.borderRadius,
 }));
@@ -57,7 +57,7 @@ const NavButton = styled(Button)(({ theme }) => ({
 const NovelReading = () => {
   const { title, chapter } = useParams();
   const navigate = useNavigate();
-  const initialChapter = chapter ? chapter : "chuong-1";
+  const initialChapter = chapter ? chapter : 'chuong-1';
   const [currentChapter, setCurrentChapter] = useState(initialChapter);
 
   const { source: sources } = useAllSources();
@@ -92,13 +92,13 @@ const NovelReading = () => {
   );
 
   function formatChapter(chapter) {
-    return chapter?.replace("chuong-", "Chương ");
+    return chapter?.replace('chuong-', 'Chương ');
   }
 
   function updateLocalStorage(title, chapter) {
     if (title) {
       const novel = { title, chapter };
-      let novelList = JSON.parse(localStorage.getItem("novelListRecently")) || [];
+      let novelList = JSON.parse(localStorage.getItem('novelListRecently')) || [];
       let novelListReaded = JSON.parse(localStorage.getItem('novelListReaded')) || [];
   
       const novelIndex = novelList.findIndex((item) => item.title === title);
@@ -118,7 +118,7 @@ const NovelReading = () => {
         }
       }
   
-      localStorage.setItem("novelListRecently", JSON.stringify(novelList));
+      localStorage.setItem('novelListRecently', JSON.stringify(novelList));
       localStorage.setItem('novelListReaded', JSON.stringify(novelListReaded));
     }
   }
@@ -201,7 +201,7 @@ const NovelReading = () => {
           className={classes.content}
         >
           {<div dangerouslySetInnerHTML={{ __html: content }} /> ||
-            "Nội dung chương đang được tải..."}
+            'Nội dung chương đang được tải...'}
         </Typography>
         <NavigationContainer>
           <Box>
