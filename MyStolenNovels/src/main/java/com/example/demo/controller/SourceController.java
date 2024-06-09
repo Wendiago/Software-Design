@@ -36,7 +36,7 @@ public class SourceController {
         }
         catch(Exception e){
             log.error("Error fetching sources");
-            return ResponseEntity.badRequest().body(
+            return ResponseEntity.internalServerError().body(
                     BaseResponse.<List<String>>builder()
                             .status("Failed")
                             .message(e.getMessage())

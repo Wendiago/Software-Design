@@ -8,4 +8,6 @@ public class MessageKeys {
     public static final String GET_SOURCES_SUCCESSFULLY = "Get sources successfully";
     public static final String GET_CHAPTERCONTENT_SUCCESSFULLY = "Get novel chapter content successfully";
     public static final String GET_SEARCHRESULT_SUCCESSFULLY = "Get search result successfully";
+    public static final String GET_DOWNLOAD_SUCCESSFULLY = "Download novel successfully";
+    public static final String GET_SUPPORTEDFORMAT_SUCCESSFULLY = "Get supported file formats successfully";
 }

@@ -44,7 +44,7 @@ public class ExportServiceFactory {
 
     public void registerExportStrategy(String strategyName, IExportServiceStrategy strategy) throws Exception{
         try {
-            strategies.put(strategyName, strategy);
+            strategies.put(getStrategyName(strategyName), strategy);
         }
         catch (Exception e){
             throw new Exception(e.getMessage());

@@ -3,6 +3,7 @@ package com.example.demo.service.ScrapingServices;
 import com.example.demo.dto.NovelByCatDTO;
 import com.example.demo.dto.NovelDownloadContentDTO;
 import com.example.demo.response.*;
+import com.example.demo.utils.HTTPClientRetry;
 import com.example.demo.utils.StringManipulator;
 import com.google.common.util.concurrent.RateLimiter;
 import org.jsoup.Jsoup;
@@ -28,13 +29,16 @@ import java.util.regex.Pattern;
 public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
     @Autowired
     private StringManipulator stringManipulator;
+
+    @Autowired
+    private HTTPClientRetry httpClientRetry;
     private static final Logger log = LoggerFactory.getLogger(Truyenfull_ScrapingService.class);
 
     //For getting download content
     private static final int MAX_RETRIES = 3;
     private static final int TIMEOUT = 10;
     private static final int RATE_LIMIT_DELAY = 500; //500ms between requests
-    private static final double REQUESTS_PER_SECOND = 1.0;
+    private static final double REQUESTS_PER_SECOND = 10.0;
     private RateLimiter rateLimiter = RateLimiter.create(REQUESTS_PER_SECOND);
 
     private static int getTotalPages(Document document) {
@@ -99,6 +103,8 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
     @Override
     public NovelDetailResponse getNovelDetail(String novelTitle) throws Exception {
         String url = "https://truyenfull.vn/" + stringManipulator.modify(novelTitle);
+        log.info("Get novel detail - novelTitle: {}", novelTitle);
+        log.info("Get novel detail - url: {}", url);
         try {
             // Send an HTTP GET request to the website
             Document document = Jsoup.connect(url).get();
@@ -206,8 +212,12 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
         String url = "https://truyenfull.vn/" + stringManipulator.modify(title) + "/" + chapterNumber;
         log.info("Constructed URL: {}", url);
         try {
-            // Send an HTTP GET request to the website
-            Document document = Jsoup.connect(url).get();
+            URI uri = new URI(url);
+            String htmlContent = httpClientRetry.getWithRetry(uri);
+            if (htmlContent == null){
+                throw new Exception("No content found");
+            }
+            Document document = Jsoup.parse(htmlContent);
 
             // Select the target element
             Element chapterC = document.select("#chapter-c.chapter-c").first();
@@ -374,6 +384,10 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
 
     @Override
     public NovelDownloadContentDTO getDownloadContent(String title) throws Exception{
+        int requestCounter = 0; // Initialize the request counter
+        final int REQUEST_THRESHOLD = 50; // Define the threshold
+        final int SLEEP_DURATION_MS = 10000;
+
         try{
             NovelDetailResponse novelDetail = this.getNovelDetail(title);
             //log.info("Download content - novel detail: {}", novelDetail);
@@ -387,7 +401,6 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
             //log.info("Download content - chapterNumberList: {}", chapterNumberList);
 
             for (String chapterNumber : chapterNumberList){
-                rateLimiter.acquire();
                 NovelChapterContentResponse chapterContentResponse = this.getNovelChapterContent(title, chapterNumber);
                 //log.info("Download content - chapter content: {}", chapterContentResponse);
                 NovelDownloadContentDTO.ChapterDTO chapterInfo = NovelDownloadContentDTO.ChapterDTO.builder()
@@ -398,6 +411,15 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
                 if (chapterInfo != null){
                     chapters.add(chapterInfo);
                     //log.info("Download content - chapters: {}", chapters);
+                }
+
+                requestCounter++; // Increment the counter
+
+                if (requestCounter >= REQUEST_THRESHOLD) {
+                    // Sleep to prevent overloading the server
+                    log.info("Reached {} requests. Sleeping for {} ms to prevent server overload...", REQUEST_THRESHOLD, SLEEP_DURATION_MS);
+                    Thread.sleep(SLEEP_DURATION_MS);
+                    requestCounter = 0;
                 }
             }
             if (chapters.isEmpty()){

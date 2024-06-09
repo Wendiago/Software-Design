@@ -259,7 +259,7 @@ public class NovelFetchingController {
         }
     }
 
-    @PostMapping("/{title}/download")
+    @PostMapping("/{title}/downloadContent")
     public ResponseEntity<?> getNovelDownloadContent(
             @RequestBody List<String> sources,
             @PathVariable String title
