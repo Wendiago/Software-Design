@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Container, Pagination } from '@mui/material';
 import { Breadcrumb, NovelList, Loading } from '../../components';
 import { styled } from '@mui/material/styles';

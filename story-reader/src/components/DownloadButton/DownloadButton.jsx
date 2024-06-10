@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { saveAs } from 'file-saver';
 import { downloadAPI } from '../../api';
 import { useAllSources } from '../../hooks/useAllSources';

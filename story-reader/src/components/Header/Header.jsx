@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { FaBars } from 'react-icons/fa'; 
 import { AppBar, Toolbar, IconButton, useMediaQuery, useTheme } from '@mui/material';
 import { Category, LogoButton, Searchbar, Setting } from '../../components';

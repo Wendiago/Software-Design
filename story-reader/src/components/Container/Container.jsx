@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Header } from '../../components';
 import { useTheme, Button } from '@mui/material';
 import { useEffect } from 'react';

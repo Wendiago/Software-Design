@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { IconButton } from '@mui/material';
 import { FaSearch } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';

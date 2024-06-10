@@ -1,4 +1,3 @@
-import React from 'react';
 import { Container, Grid, useMediaQuery, useTheme } from '@mui/material';
 import NovelInfo from './NovelInfo';
 import ChapterList from './ChapterList';

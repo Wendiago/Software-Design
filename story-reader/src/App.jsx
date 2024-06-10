@@ -4,7 +4,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Toaster } from 'react-hot-toast';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { themes } from './theme/themes';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Container } from './components';
 import {
   Homepage,

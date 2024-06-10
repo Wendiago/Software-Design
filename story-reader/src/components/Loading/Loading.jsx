@@ -1,4 +1,3 @@
-import React from 'react';
 import ReactLoading from 'react-loading';
 import { useTheme } from '@mui/material/styles';
 
