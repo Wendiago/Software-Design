@@ -17,7 +17,7 @@ class DownloadAPI {
       `/${title}/download`,
       {
         'sources': source, 
-        'fileFormat': fileFormat
+        'file_format': fileFormat
       },
       { responseType: 'arraybuffer' }
     );

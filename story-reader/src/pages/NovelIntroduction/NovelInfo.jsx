@@ -123,7 +123,7 @@ const NovelInfo = ({ novel }) => {
                 {novel?.rating}/10
               </Typography>
             </Box>
-            <DownloadButton title={novel?.title}/>
+            <DownloadButton title={normalizeString(novel?.title)}/>
             <Typography variant="body2" className={classes.description}>
               {showMore ? novel?.description : shortDescription}
             </Typography>
