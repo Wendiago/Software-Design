@@ -25,25 +25,6 @@ public class Truyencv_ScrapingService implements IScrapingServiceStrategy {
         this.stringManipulator = stringManipulator;
     }
     
-    // public static void main(String[] args) {
-    //     String category = "bách hợp";
-    //     String url = "https://truyencv.vn/the-loai/bach-hop/trang-";
-    //     int totalPages = 65;
-    //     try {
-    //         // Send an HTTP GET request to the website
-    //         Document document = Jsoup.connect(url + Integer.toString(65)).get();
-    //         System.out.print(url + Integer.toString(65));
-    //         //Get total pages
-    //         // totalPages = getTotalPages(document);
-
-    //         //Extract novels list
-    //         List<NovelByCatDTO> novelByCat =  extractNovelsFromPage(document);
-    //         System.out.print(novelByCat);
-    //     }
-    //      catch (IOException e) {
-    //         e.printStackTrace();
-    //     }
-    // }
     private static int getTotalPages(Document document){
         Elements pageLinks = document.getElementsByClass("flex mx-auto border border-solid border-[#dddddd] max-w-max items-center mt-[20px]");
         Element lastPageElement = pageLinks.select("li").last();
@@ -100,7 +81,7 @@ public class Truyencv_ScrapingService implements IScrapingServiceStrategy {
                     .build();
 
         } catch (IOException e) {
-            throw new Exception("Error fetching novels by category"+normalizedCategory);
+            throw new Exception("Error fetching novels by category");
         }
     }
 
@@ -201,7 +182,8 @@ public class Truyencv_ScrapingService implements IScrapingServiceStrategy {
     //Get chapter content
     @Override
     public NovelChapterContentResponse getNovelChapterContent(String title, String chapterNumber) throws Exception{
-        String url = "https://truyencv.vn";
+        title = stringManipulator.modify(title);
+        String url = "https://truyencv.vn/" + title + "/" + chapterNumber;
         try {
             // Send an HTTP GET request to the website
             Document document = Jsoup.connect(url).get();
@@ -348,7 +330,7 @@ public class Truyencv_ScrapingService implements IScrapingServiceStrategy {
         int requestCounter = 0; // Initialize the request counter
         final int REQUEST_THRESHOLD = 50; // Define the threshold
         final int SLEEP_DURATION_MS = 10000;
-
+        String url = title;
         try{
             NovelDetailResponse novelDetail = this.getNovelDetail(title);
             //log.info("Download content - novel detail: {}", novelDetail);
@@ -384,7 +366,7 @@ public class Truyencv_ScrapingService implements IScrapingServiceStrategy {
                 }
             }
             if (chapters.isEmpty()){
-                throw new Exception("Cannot get download content from truyenfull source");
+                throw new Exception("Cannot get download content from truyenfull source"+ "\n TEXT:"+ url);
             }
             return NovelDownloadContentDTO.builder()
                     .title(novelDetail.getTitle())
@@ -395,7 +377,7 @@ public class Truyencv_ScrapingService implements IScrapingServiceStrategy {
                     .build();
         }
         catch(Exception e){
-            throw new Exception(e.getMessage());
+            throw new Exception(e.getMessage()+ "\n TEXT:"+ url);
         }
     }
 }

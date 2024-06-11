@@ -29,6 +29,10 @@ import java.util.regex.Pattern;
 public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
     @Autowired
     private StringManipulator stringManipulator;
+    public void setStringManipulator(StringManipulator stringManipulator) {
+        this.stringManipulator = stringManipulator;
+    }
+    
 
     @Autowired
     private HTTPClientRetry httpClientRetry;
@@ -209,7 +213,7 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
     @Override
     public NovelChapterContentResponse getNovelChapterContent(String title, String chapterNumber) throws Exception {
         title = stringManipulator.modify(title);
-        String url = "https://truyenfull.vn/" + stringManipulator.modify(title) + "/" + chapterNumber;
+        String url = "https://truyenfull.vn/" + title + "/" + chapterNumber;
         log.info("Constructed URL: {}", url);
         try {
             URI uri = new URI(url);

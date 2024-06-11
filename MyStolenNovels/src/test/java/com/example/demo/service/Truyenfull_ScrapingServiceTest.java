@@ -13,7 +13,7 @@ import com.example.demo.response.NovelChapterContentResponse;
 import com.example.demo.response.NovelChapterListResponse;
 import com.example.demo.response.NovelDetailResponse;
 import com.example.demo.response.SearchResponse;
-import com.example.demo.service.ScrapingServices.Truyencv_ScrapingService;
+import com.example.demo.service.ScrapingServices.Truyenfull_ScrapingService;
 import com.example.demo.utils.StringManipulator;
 
 import org.jsoup.Jsoup;
@@ -34,21 +34,21 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class Truyencv_ScrapingServiceTest {
-    private static Truyencv_ScrapingService scrapingService;
+class Truyenfull_ScrapingServiceTest {
+    private static Truyenfull_ScrapingService scrapingService;
     @BeforeAll
     public static void setUpClass() {
-        scrapingService = new Truyencv_ScrapingService();
+        scrapingService = new Truyenfull_ScrapingService();
     }
     @Mock
     private StringManipulator stringManipulator;
 
     @Test
     public void testGetTotalPages() throws Exception {
-        String url = "https://truyencv.vn/the-loai/kiem-hiep";
+        String url = "https://truyenfull.vn/the-loai/kiem-hiep";
         Document document = Jsoup.connect(url).get();
         // Use reflection to access the private static method
-        Method method = Truyencv_ScrapingService.class.getDeclaredMethod("getTotalPages", Document.class);
+        Method method = Truyenfull_ScrapingService.class.getDeclaredMethod("getTotalPages", Document.class);
         method.setAccessible(true);
 
         // Act
@@ -57,21 +57,21 @@ class Truyencv_ScrapingServiceTest {
         // Assert
         assertNotNull(totalPages);
         // Replace the expected value based on the test HTML
-        assertEquals(99, totalPages);
+        assertEquals(37, totalPages);
     }
     @Test
     public void testExtractNovelsFromPage() throws Exception {
-        String url = "https://truyencv.vn/the-loai/bach-hop/trang-65";
+        String url = "https://truyenfull.vn/the-loai/doan-van/trang-40/";
         Document document = Jsoup.connect(url).get();
         List<NovelByCatDTO> expectation = new ArrayList<>();
         NovelByCatDTO novelByCat = NovelByCatDTO.builder()
-                    .title("Phù Sinh Nhược Mộng")
-                    .author("Lưu Diên Trường Ngưng")
-                    .imageUrl("https://static.truyencv.vn/images/phu-sinh-nhuoc-mong.jpg")
+                    .title("[Đoản Văn] Phù Dung Hoa, Sớm Nở, Tối Tàn")
+                    .author("Vô Tâm Tà Thiếu")
+                    .imageUrl("https://static.8cache.com/cover/o/eJzLyTDW101J9HT0zC1wiwjw1Q8zCc_LynZPSTPz1HeEgsCCdP2SCveQojCjqCyvwFzd1DTnysyQqmyXrKQixyTLpCTzzEBnD1_9cjMD3QwLUwCPQRsh/phu-dung-hoa-som-no-toi-tan.jpg")
                     .build();
         expectation.add(novelByCat);
         // Use reflection to access the private static method
-        Method method = Truyencv_ScrapingService.class.getDeclaredMethod("extractNovelsFromPage", Document.class);
+        Method method = Truyenfull_ScrapingService.class.getDeclaredMethod("extractNovelsFromPage", Document.class);
         method.setAccessible(true);
         // Act
         List<NovelByCatDTO> fact = (List<NovelByCatDTO>) method.invoke(null, document);
@@ -87,27 +87,28 @@ class Truyencv_ScrapingServiceTest {
 
     @Test
     public void testGetNovelsByCategory() throws Exception {
-        String category = "bách hợp";
-        int page = 65;
-        String normalizedCategory = "bach-hop";
-        String url = "https://truyencv.vn/the-loai/bach-hop";
+        String category = "đoản văn";
+        int page = 40;
+        String normalizedCategory = "doan-van";
+        String url = "https://truyenfull.vn/the-loai/doan-van";
         Document document = Jsoup.connect(url).get();
         // Use reflection to access the private static method
-        Method method = Truyencv_ScrapingService.class.getDeclaredMethod("getTotalPages", Document.class);
+        Method method = Truyenfull_ScrapingService.class.getDeclaredMethod("getTotalPages", Document.class);
         method.setAccessible(true);
 
         // Act
         int totalPages = (int) method.invoke(null, document);
-        document = Jsoup.connect(url+"/trang-65").get();
-        Method extractNovelsFromPageMethod = Truyencv_ScrapingService.class.getDeclaredMethod("extractNovelsFromPage", Document.class);
+        document = Jsoup.connect(url+"/trang-40").get();
+        
+        Method extractNovelsFromPageMethod = Truyenfull_ScrapingService.class.getDeclaredMethod("extractNovelsFromPage", Document.class);
         extractNovelsFromPageMethod.setAccessible(true);
         List<NovelByCatDTO> novels = (List<NovelByCatDTO>) extractNovelsFromPageMethod.invoke(scrapingService, document);
-        scrapingService = new Truyencv_ScrapingService();
+        scrapingService = new Truyenfull_ScrapingService();
+        
         // Mock the StringManipulator
         StringManipulator stringManipulator = Mockito.mock(StringManipulator.class);
         when(stringManipulator.modify(category)).thenReturn(normalizedCategory);
         scrapingService.setStringManipulator(stringManipulator);
-
 
         NovelByCatResponse expectedResponse = NovelByCatResponse.builder()
                 .novels(novels)
@@ -116,7 +117,7 @@ class Truyencv_ScrapingServiceTest {
                 .build();
         System.out.print(category + page);
         // Act
-        NovelByCatResponse actualResponse = scrapingService.getNovelsByCategory("bách hợp", 65);
+        NovelByCatResponse actualResponse = scrapingService.getNovelsByCategory(category, 40);
 
         // Assert
         assertNotNull(actualResponse);
@@ -124,7 +125,7 @@ class Truyencv_ScrapingServiceTest {
     }
     @Test
     public void testGetNovelDetail() throws Exception {
-        scrapingService = new Truyencv_ScrapingService();
+        scrapingService = new Truyenfull_ScrapingService();
         String title = "phù sinh nhược mộng";
         String normalizedtitle = "phu-sinh-nhuoc-mong";
         // Mock the StringManipulator
@@ -140,9 +141,9 @@ class Truyencv_ScrapingServiceTest {
     }
     @Test
     public void testGetNovelChapterList() throws Exception {
-        scrapingService = new Truyencv_ScrapingService();
+        scrapingService = new Truyenfull_ScrapingService();
         String title = "phù sinh nhược mộng";
-        String normalizedtitle = "phu-sinh-nhuoc-mong";
+        String normalizedtitle = "phu-dung-hoa-som-no-toi-tan";
         // Mock the StringManipulator
         StringManipulator stringManipulator = Mockito.mock(StringManipulator.class);
         when(stringManipulator.modify(title)).thenReturn(normalizedtitle);
@@ -156,7 +157,7 @@ class Truyencv_ScrapingServiceTest {
     }
     @Test
     public void testGetNovelChapterContent() throws Exception {
-        scrapingService = new Truyencv_ScrapingService();
+        scrapingService = new Truyenfull_ScrapingService();
         String title = "phù sinh nhược mộng";
         String normalizedtitle = "phu-sinh-nhuoc-mong";
         // Mock the StringManipulator
@@ -172,7 +173,7 @@ class Truyencv_ScrapingServiceTest {
     }
     @Test
     public void testGetCategories() throws Exception {
-        scrapingService = new Truyencv_ScrapingService();
+        scrapingService = new Truyenfull_ScrapingService();
         // Act
         CategoriesResponse actualResponse =  scrapingService.getCategories();
 
@@ -181,9 +182,9 @@ class Truyencv_ScrapingServiceTest {
     }
     @Test
     public void testGetNovelsFromPage() throws Exception {
-        String url = "https://truyencv.vn/danh-sach/truyen-moi/trang-3137";
+        String url = "https://truyenfull.vn/danh-sach/truyen-moi/trang-3137";
         // Use reflection to access the private static method
-        Method method = Truyencv_ScrapingService.class.getDeclaredMethod("getNovelsFromPage", String.class);
+        Method method = Truyenfull_ScrapingService.class.getDeclaredMethod("getNovelsFromPage", String.class);
         method.setAccessible(true);
         // Act
         List<NovelByCatDTO> actualResponse = (List<NovelByCatDTO>) method.invoke(null, url);
@@ -193,7 +194,7 @@ class Truyencv_ScrapingServiceTest {
     }
     @Test
     public void testGetSearchResult() throws Exception {
-        scrapingService = new Truyencv_ScrapingService();
+        scrapingService = new Truyenfull_ScrapingService();
         String keyword = "meo";
         int page = 1;
         // Mock the StringManipulator
@@ -208,7 +209,7 @@ class Truyencv_ScrapingServiceTest {
     }
     @Test
     public void testGetDownloadContent() throws Exception {
-        scrapingService = new Truyencv_ScrapingService();
+        scrapingService = new Truyenfull_ScrapingService();
         String title = "phù sinh nhược mộng";
         String normalizedtitle = "phu-sinh-nhuoc-mong";
         // Mock the StringManipulator
@@ -223,9 +224,9 @@ class Truyencv_ScrapingServiceTest {
         assertNotNull(novelDetailResponse);
         
         assertEquals("Phù Sinh Nhược Mộng", novelDetailResponse.getTitle());
-        assertEquals("https://static.truyencv.vn/images/phu-sinh-nhuoc-mong.jpg", novelDetailResponse.getImage());
+        assertEquals("https://static.truyenfull.vn/images/phu-sinh-nhuoc-mong.jpg", novelDetailResponse.getImage());
         assertEquals("Lưu Diên Trường Ngưng", novelDetailResponse.getAuthor());
-        assertEquals("https://truyencv.vn/phu-sinh-nhuoc-mong", novelDetailResponse.getSource());
+        assertEquals("https://truyenfull.vn/phu-sinh-nhuoc-mong", novelDetailResponse.getSource());
 
     }
 }
