@@ -302,7 +302,7 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
         Elements novelListElements = novelListDoc.select("div.list-truyen div.row[itemtype=\"https://schema.org/Book\"]");
 
         for (Element novel : novelListElements) {
-            String image = novel.select("div[data-classname=\"cover\"]").attr("data-image");
+            String image = novel.select("div.col-span-3 sm:col-span-2 py-3").attr("data-image");
             String title = novel.select(".truyen-title").text();
             String author = novel.select(".author").text();
 
