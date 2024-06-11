@@ -21,26 +21,29 @@ import java.util.regex.Pattern;
 public class Truyencv_ScrapingService implements IScrapingServiceStrategy {
     @Autowired
     private StringManipulator stringManipulator;
-    public static void main(String[] args) {
-        String url = "https://truyencv.vn";
-
-        try {
-            // Send an HTTP GET request to the website
-            Document document = Jsoup.connect(url).get();
-
-            Elements categoryListElements = document.getElementsByClass("flex items-center h-[30px] pl-5");
-
-            List<String> categoryList = new ArrayList<>();
-            for (Element categoryElement : categoryListElements){
-                categoryList.add(categoryElement.select("a").text());
-            }
-
-            System.out.println(categoryList);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void setStringManipulator(StringManipulator stringManipulator) {
+        this.stringManipulator = stringManipulator;
     }
+    
+    // public static void main(String[] args) {
+    //     String category = "bách hợp";
+    //     String url = "https://truyencv.vn/the-loai/bach-hop/trang-";
+    //     int totalPages = 65;
+    //     try {
+    //         // Send an HTTP GET request to the website
+    //         Document document = Jsoup.connect(url + Integer.toString(65)).get();
+    //         System.out.print(url + Integer.toString(65));
+    //         //Get total pages
+    //         // totalPages = getTotalPages(document);
+
+    //         //Extract novels list
+    //         List<NovelByCatDTO> novelByCat =  extractNovelsFromPage(document);
+    //         System.out.print(novelByCat);
+    //     }
+    //      catch (IOException e) {
+    //         e.printStackTrace();
+    //     }
+    // }
     private static int getTotalPages(Document document){
         Elements pageLinks = document.getElementsByClass("flex mx-auto border border-solid border-[#dddddd] max-w-max items-center mt-[20px]");
         Element lastPageElement = pageLinks.select("li").last();
@@ -77,15 +80,15 @@ public class Truyencv_ScrapingService implements IScrapingServiceStrategy {
     public NovelByCatResponse getNovelsByCategory(String category, int page) throws Exception{
         //Normalize category string if necessary
         String normalizedCategory = stringManipulator.modify(category);
-
         String url = "https://truyencv.vn/the-loai/" + normalizedCategory + "/trang-";
         int totalPages = 1;
         try {
             // Send an HTTP GET request to the website
+            Document documentTotalPage = Jsoup.connect("https://truyencv.vn/the-loai/" + normalizedCategory + "/").get();
             Document document = Jsoup.connect(url + Integer.toString(page)).get();
 
             //Get total pages
-            totalPages = getTotalPages(document);
+            totalPages = getTotalPages(documentTotalPage);
 
             //Extract novels list
             List<NovelByCatDTO> novelByCat =  extractNovelsFromPage(document);
@@ -97,7 +100,7 @@ public class Truyencv_ScrapingService implements IScrapingServiceStrategy {
                     .build();
 
         } catch (IOException e) {
-            throw new Exception("Error fetching novels by category");
+            throw new Exception("Error fetching novels by category"+normalizedCategory);
         }
     }
 
