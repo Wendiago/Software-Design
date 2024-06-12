@@ -14,6 +14,7 @@ import com.example.demo.response.NovelChapterListResponse;
 import com.example.demo.response.NovelDetailResponse;
 import com.example.demo.response.SearchResponse;
 import com.example.demo.service.ScrapingServices.Truyenfull_ScrapingService;
+import com.example.demo.utils.HTTPClientRetry;
 import com.example.demo.utils.StringManipulator;
 
 import org.jsoup.Jsoup;
@@ -164,9 +165,8 @@ class Truyenfull_ScrapingServiceTest {
         StringManipulator stringManipulator = Mockito.mock(StringManipulator.class);
         when(stringManipulator.modify(title)).thenReturn(normalizedtitle);
         scrapingService.setStringManipulator(stringManipulator);
-
         // Act
-        NovelChapterContentResponse actualResponse =  scrapingService.getNovelChapterContent("phù sinh nhược mộng","chuong-1");
+        NovelChapterContentResponse actualResponse =  scrapingService.getNovelChapterContent("phù sinh nhược mộng","quyen-1-chuong-1");
 
         // Assert
         assertNotNull(actualResponse);
@@ -182,7 +182,7 @@ class Truyenfull_ScrapingServiceTest {
     }
     @Test
     public void testGetNovelsFromPage() throws Exception {
-        String url = "https://truyenfull.vn/danh-sach/truyen-moi/trang-3137";
+        String url = "https://truyenfull.vn/tim-kiem/?tukhoa=h%E1%BB%87+th%E1%BB%91ng";
         // Use reflection to access the private static method
         Method method = Truyenfull_ScrapingService.class.getDeclaredMethod("getNovelsFromPage", String.class);
         method.setAccessible(true);
@@ -224,9 +224,9 @@ class Truyenfull_ScrapingServiceTest {
         assertNotNull(novelDetailResponse);
         
         assertEquals("Phù Sinh Nhược Mộng", novelDetailResponse.getTitle());
-        assertEquals("https://static.truyenfull.vn/images/phu-sinh-nhuoc-mong.jpg", novelDetailResponse.getImage());
+        assertEquals("https://static.8cache.com/cover/o/eJzLyTDW101zDQ3NystzL3F11Q_LTSoLqShKdvfx1HeEAtfKSP1I87D4cDd3g2BjC_1yI0NT3QxjIyNdz2QTIwDMqhPI/phu-sinh-nhuoc-mong.jpg", novelDetailResponse.getImage());
         assertEquals("Lưu Diên Trường Ngưng", novelDetailResponse.getAuthor());
-        assertEquals("https://truyenfull.vn/phu-sinh-nhuoc-mong", novelDetailResponse.getSource());
+        assertEquals("vongtinhgiang.wordpress.com", novelDetailResponse.getSource());
 
     }
 }

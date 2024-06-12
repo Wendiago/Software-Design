@@ -65,11 +65,11 @@ public class Truyencv_ScrapingService implements IScrapingServiceStrategy {
         int totalPages = 1;
         try {
             // Send an HTTP GET request to the website
-            Document documentTotalPage = Jsoup.connect("https://truyencv.vn/the-loai/" + normalizedCategory + "/").get();
+            Document documentTotalPages = Jsoup.connect("https://truyencv.vn/the-loai/" + normalizedCategory + "/").get();
             Document document = Jsoup.connect(url + Integer.toString(page)).get();
 
             //Get total pages
-            totalPages = getTotalPages(documentTotalPage);
+            totalPages = getTotalPages(documentTotalPages);
 
             //Extract novels list
             List<NovelByCatDTO> novelByCat =  extractNovelsFromPage(document);

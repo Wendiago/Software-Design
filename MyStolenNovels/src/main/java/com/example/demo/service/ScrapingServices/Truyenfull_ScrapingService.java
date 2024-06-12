@@ -31,6 +31,7 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
     private StringManipulator stringManipulator;
     public void setStringManipulator(StringManipulator stringManipulator) {
         this.stringManipulator = stringManipulator;
+        this.httpClientRetry = new HTTPClientRetry();
     }
     
 
@@ -85,10 +86,11 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
         int totalPages = 1;
         try {
             // Send an HTTP GET request to the website
+            Document documentTotalPages = Jsoup.connect(url).get();
             Document document = Jsoup.connect(url + Integer.toString(page)).get();
 
             //Get total pages
-            totalPages = getTotalPages(document);
+            totalPages = getTotalPages(documentTotalPages);
 
             //Extract novels list
             List<NovelByCatDTO> novelByCat = extractNovelsFromPage(document);
@@ -215,12 +217,15 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
         title = stringManipulator.modify(title);
         String url = "https://truyenfull.vn/" + title + "/" + chapterNumber;
         log.info("Constructed URL: {}", url);
-        try {
+        
+        try { 
             URI uri = new URI(url);
+
             String htmlContent = httpClientRetry.getWithRetry(uri);
             if (htmlContent == null){
                 throw new Exception("No content found");
             }
+            
             Document document = Jsoup.parse(htmlContent);
 
             // Select the target element
@@ -253,7 +258,7 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
                     .textContent(textContent)
                     .build();
         } catch (Exception e) {
-            throw new Exception(e.getMessage());
+            throw new Exception(e.getMessage() +"URL: "+ url);
         }
     }
 
@@ -304,9 +309,16 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
         List<NovelByCatDTO> novelList = new ArrayList<>();
         Document novelListDoc = Jsoup.connect(url).get();
         Elements novelListElements = novelListDoc.select("div.list-truyen div.row[itemtype=\"https://schema.org/Book\"]");
-
         for (Element novel : novelListElements) {
-            String image = novel.select("div.col-span-3 sm:col-span-2 py-3").attr("data-image");
+            // Select the div element with data-classname="cover"
+            Element coverDiv = novel.selectFirst("div[data-classname=cover]");
+            String image = "";
+            if (coverDiv != null) {
+                // Get the data-desk-image attribute
+                image = coverDiv.attr("data-desk-image");
+            } else {
+                image = novel.select("div.col-span-3 sm:col-span-2 py-3").attr("data-image");
+            }
             String title = novel.select(".truyen-title").text();
             String author = novel.select(".author").text();
 
