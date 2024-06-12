@@ -172,7 +172,7 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
 
             String getChapterNumberListURL = "https://truyenfull.vn/ajax.php?type=chapter_option&data=" + truyenId;
             Document chapterListDocument = Jsoup.connect(getChapterNumberListURL).get();
-            log.info("getNovelChapterList: chapterListDocument: {}", chapterListDocument);
+            //log.info("getNovelChapterList: chapterListDocument: {}", chapterListDocument);
 
             Elements chapterNumberListElements = chapterListDocument.select("option");
             List<String> chapterNumberList = chapterNumberListElements
@@ -210,7 +210,7 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
     public NovelChapterContentResponse getNovelChapterContent(String title, String chapterNumber) throws Exception {
         title = stringManipulator.modify(title);
         String url = "https://truyenfull.vn/" + stringManipulator.modify(title) + "/" + chapterNumber;
-        log.info("Constructed URL: {}", url);
+        log.info("getNovelChapterContent - Constructed URL: {}", url);
         try {
             URI uri = new URI(url);
             String htmlContent = httpClientRetry.getWithRetry(uri);
