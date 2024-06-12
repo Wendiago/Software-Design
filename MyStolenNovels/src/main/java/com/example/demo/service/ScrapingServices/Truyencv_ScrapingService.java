@@ -14,12 +14,17 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class Truyencv_ScrapingService implements IScrapingServiceStrategy {
     @Autowired
     private StringManipulator stringManipulator;
-
+    public void setStringManipulator(StringManipulator stringManipulator) {
+        this.stringManipulator = stringManipulator;
+    }
+    
     private static int getTotalPages(Document document){
         Elements pageLinks = document.getElementsByClass("flex mx-auto border border-solid border-[#dddddd] max-w-max items-center mt-[20px]");
         Element lastPageElement = pageLinks.select("li").last();
@@ -56,15 +61,15 @@ public class Truyencv_ScrapingService implements IScrapingServiceStrategy {
     public NovelByCatResponse getNovelsByCategory(String category, int page) throws Exception{
         //Normalize category string if necessary
         String normalizedCategory = stringManipulator.modify(category);
-
         String url = "https://truyencv.vn/the-loai/" + normalizedCategory + "/trang-";
         int totalPages = 1;
         try {
             // Send an HTTP GET request to the website
+            Document documentTotalPages = Jsoup.connect("https://truyencv.vn/the-loai/" + normalizedCategory + "/").get();
             Document document = Jsoup.connect(url + Integer.toString(page)).get();
 
             //Get total pages
-            totalPages = getTotalPages(document);
+            totalPages = getTotalPages(documentTotalPages);
 
             //Extract novels list
             List<NovelByCatDTO> novelByCat =  extractNovelsFromPage(document);
@@ -177,18 +182,43 @@ public class Truyencv_ScrapingService implements IScrapingServiceStrategy {
     //Get chapter content
     @Override
     public NovelChapterContentResponse getNovelChapterContent(String title, String chapterNumber) throws Exception{
-        String url = "https://truyenfull.vn";
+        title = stringManipulator.modify(title);
+        String url = "https://truyencv.vn/" + title + "/" + chapterNumber;
         try {
             // Send an HTTP GET request to the website
             Document document = Jsoup.connect(url).get();
+            String chapterTitle = document.select("a.capitalize.flex.text-lg.max-w-max.m-auto.text-center.text-ellipsis.overflow-hidden").first().text();
+            
+            String novelTitletext = document.title();
+            String delimiter = "-";
+            // Find the index of the delimiter "-"
+            int index = novelTitletext.indexOf(delimiter);
 
-            Elements categoryListElements = document.select("ul.control.navbar-nav div.dropdown-menu.multi-column ul.dropdown-menu li");
+            // If the delimiter is found, extract the substring after it
+            String novelTitle = (index != -1) ? novelTitletext.substring(index + 1) : novelTitletext;
 
-            List<String> categoryList = new ArrayList<>();
-            for (Element categoryElement : categoryListElements){
-                categoryList.add(categoryElement.select("a").text());
+            Elements elements = document.select("p.overflow-hidden.text-ellipsis.mb-8");
+            // Iterate over the selected elements and print their content
+            for (Element element : elements) {
+                System.out.println(element.text());
             }
-            return NovelChapterContentResponse.builder().build();
+
+            // Extract text content from child nodes
+            String content ="";
+            String textContent ="";
+            for (Element element : elements) {
+                content = content + element.text() + "<br>";
+                textContent = textContent +" " +element.text();
+            }
+           
+
+            return NovelChapterContentResponse.builder()
+                    .title(novelTitle)
+                    .chapterNumber(chapterNumber)
+                    .chapterTitle(chapterTitle)
+                    .content(content)
+                    .textContent(textContent)
+                    .build();
         }
         catch(Exception e){
             throw new Exception(e.getMessage());
@@ -216,24 +246,138 @@ public class Truyencv_ScrapingService implements IScrapingServiceStrategy {
             throw new Exception(e.getMessage());
         }
     }
+    private static List<NovelByCatDTO> getNovelsFromPage(String url) throws IOException {
+        List<NovelByCatDTO> novelList = new ArrayList<>();
+        Document novelListDoc = Jsoup.connect(url).get();
+            Elements novelListElements = novelListDoc.select("div[itemtype=\"https://schema.org/Book\"]");
+            for (Element novel : novelListElements) {
+
+                String image = novel.select("img[itemprop=image]").attr("src");
+
+                String title = novel.select("a[itemprop=url]").text();
+                String author = novel.select("span[itemprop=author]").text();
+
+                List<String> statusList = new ArrayList<>();
+
+                // Get newest chapter
+                String newChapter = novel.select("a[rel=nofollow]").text();
+                System.out.print(newChapter+"\n");
+                NovelByCatDTO novelItem = NovelByCatDTO.builder()
+                        .title(title)
+                        .imageUrl(image)
+                        .author(author)
+                        .status(statusList)
+                        .newChapter(newChapter)
+                        .build();
+                
+                novelList.add(novelItem);
+        }
+        return novelList;
+    }
 
     @Override
     public SearchResponse getSearchResult(String keyword, int page) throws Exception{
+        String url = "https://truyencv.vn/tim-kiem/?tukhoa=" + keyword;
+
         try {
-            return SearchResponse.builder().build();
-        }
-        catch(Exception e){
+            // Send an HTTP GET request to the website
+            Document document = Jsoup.connect(url).get();
+            // Get total pages
+            Elements pageElements = document.select("ul.pagination li:not(.dropup)");
+            // log.info("Last page Element: {}", pageElements);
+            int totalPages = 1;
+
+            // If there is only 1 page
+            if (pageElements.isEmpty()) {
+                List<NovelByCatDTO> novelList = getNovelsFromPage(url);
+                // log.info(novelList.toString());
+                return SearchResponse.builder()
+                        .novels(novelList)
+                        .currentPage(page)
+                        .totalPages(totalPages)
+                        .build();
+            } else {
+                Element lastPageElement = pageElements.last();
+                assert lastPageElement != null;
+                String lastPageStr = lastPageElement.select("a").attr("title").trim();
+                // log.info("Last Page Title Attribute: " + lastPageStr);
+                System.out.println("Last Page Title Attribute: " + lastPageStr);
+                // Extract the last number from the string
+                Pattern pattern = Pattern.compile("(\\d+)$");
+                Matcher matcher = pattern.matcher(lastPageStr);
+                if (matcher.find()) {
+                    totalPages = Integer.parseInt(matcher.group(1));
+                }
+                // If page request exceeds total pages
+                if (totalPages < page) {
+                    page = totalPages;
+                }
+
+                List<NovelByCatDTO> novelList = getNovelsFromPage(url + "&page=" + page);
+                return SearchResponse.builder()
+                        .novels(novelList)
+                        .currentPage(page)
+                        .totalPages(totalPages)
+                        .build();
+            }
+        } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
     }
 
     @Override
     public NovelDownloadContentDTO getDownloadContent(String title) throws Exception{
+        int requestCounter = 0; // Initialize the request counter
+        final int REQUEST_THRESHOLD = 50; // Define the threshold
+        final int SLEEP_DURATION_MS = 10000;
+        String url = title;
         try{
-            return NovelDownloadContentDTO.builder().build();
+            NovelDetailResponse novelDetail = this.getNovelDetail(title);
+            //log.info("Download content - novel detail: {}", novelDetail);
+
+            NovelChapterListResponse chapterList = this.getNovelChapterList(title, 1);
+            //log.info("Download content - chapter list: {}", chapterList);
+
+            List<NovelDownloadContentDTO.ChapterDTO> chapters = new ArrayList<>();
+            List<String> chapterNumberList = chapterList.getRawChapterNumberList();
+
+            //log.info("Download content - chapterNumberList: {}", chapterNumberList);
+
+            for (String chapterNumber : chapterNumberList){
+                NovelChapterContentResponse chapterContentResponse = this.getNovelChapterContent(title, chapterNumber);
+                //log.info("Download content - chapter content: {}", chapterContentResponse);
+                NovelDownloadContentDTO.ChapterDTO chapterInfo = NovelDownloadContentDTO.ChapterDTO.builder()
+                        .chapterTitle(chapterContentResponse.getChapterTitle())
+                        .chapterContent(chapterContentResponse.getTextContent())
+                        .build();
+                //log.info("Download content - chapter: {}", chapterInfo);
+                if (chapterInfo != null){
+                    chapters.add(chapterInfo);
+                    //log.info("Download content - chapters: {}", chapters);
+                }
+
+                requestCounter++; // Increment the counter
+
+                if (requestCounter >= REQUEST_THRESHOLD) {
+                    // Sleep to prevent overloading the server
+                    // log.info("Reached {} requests. Sleeping for {} ms to prevent server overload...", REQUEST_THRESHOLD, SLEEP_DURATION_MS);
+                    Thread.sleep(SLEEP_DURATION_MS);
+                    requestCounter = 0;
+                }
+            }
+            if (chapters.isEmpty()){
+                throw new Exception("Cannot get download content from truyenfull source"+ "\n TEXT:"+ url);
+            }
+            return NovelDownloadContentDTO.builder()
+                    .title(novelDetail.getTitle())
+                    .image(novelDetail.getImage())
+                    .author(novelDetail.getAuthor())
+                    .source("truyencv.vn")
+                    .chapters(chapters)
+                    .build();
         }
         catch(Exception e){
-            throw new Exception(e.getMessage());
+            throw new Exception(e.getMessage()+ "\n TEXT:"+ url);
         }
     }
 }
