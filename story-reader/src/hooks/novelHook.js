@@ -1,6 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
-import { useAllSources } from './useAllSources';
-import { novelAPI } from '../api';
+import { useQuery } from "@tanstack/react-query";
+import { useAllSources } from "./useAllSources";
+import { novelAPI } from "../api";
 
 export function useNovelSearched(keyword, pageNumber) {
   const { source } = useAllSources();
@@ -9,7 +9,7 @@ export function useNovelSearched(keyword, pageNumber) {
     error,
     data: { data } = {},
   } = useQuery({
-    queryKey: ['novel-searched', keyword, pageNumber],
+    queryKey: ["novel-searched", keyword, pageNumber],
     queryFn: () => novelAPI.searchNovel({ keyword, pageNumber, source }),
   });
 
@@ -23,7 +23,7 @@ export function useNovelChapterList(title, pageNumber) {
     error,
     data: { data } = {},
   } = useQuery({
-    queryKey: ['novel-chapter-list', title, pageNumber],
+    queryKey: ["novel-chapter-list", title, pageNumber],
     queryFn: () => novelAPI.getNovelChapterList({ title, pageNumber, source }),
   });
 
@@ -37,7 +37,7 @@ export function useNovelDetail(title) {
     error,
     data: { data } = {},
   } = useQuery({
-    queryKey: ['novel-detail', title],
+    queryKey: ["novel-detail", title],
     queryFn: () => novelAPI.getNovelDetail({ title, source }),
   });
 
@@ -50,7 +50,7 @@ export function useNovelChapterContent(title, chapterNumber, source) {
     error,
     data: { data } = {},
   } = useQuery({
-    queryKey: ['novel-chapter-content', title, chapterNumber, source],
+    queryKey: ["novel-chapter-content", title, chapterNumber, source],
     queryFn: () =>
       novelAPI.getNovelChapterContent({ title, chapterNumber, source }),
   });

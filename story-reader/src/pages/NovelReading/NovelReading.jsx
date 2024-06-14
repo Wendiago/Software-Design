@@ -1,18 +1,27 @@
-import { useState, useEffect } from 'react';
-import { Container, Grid, Box, Button, Typography, Paper } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Breadcrumb, Loading, DownloadButton } from '../../components';
-import ChapterListDropDown from './ChapterListDropDown';
-import ChapterListFloating from './ChapterListFloating';
-import { useAllSources } from '../../hooks/useAllSources';
+import { useState, useEffect } from "react";
+import {
+  Container,
+  Grid,
+  Box,
+  Button,
+  Typography,
+  Paper,
+  createTheme,
+  ThemeProvider,
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import { useParams, useNavigate } from "react-router-dom";
+import { Breadcrumb, Loading, DownloadButton } from "../../components";
+import ChapterListDropDown from "./ChapterListDropDown";
+import ChapterListFloating from "./ChapterListFloating";
+import { useAllSources } from "../../hooks/useAllSources";
 import {
   useNovelChapterContent,
   useNovelChapterList,
   useNovelDetail,
-} from '../../hooks/novelHook';
+} from "../../hooks/novelHook";
 
-const PREFIX = 'NovelReading';
+const PREFIX = "NovelReading";
 const classes = {
   root: `${PREFIX}-root`,
   title: `${PREFIX}-title`,
@@ -20,44 +29,106 @@ const classes = {
   content: `${PREFIX}-content`,
 };
 
-const Root = styled('div')(({ theme }) => ({
+const Root = styled("div")(({ theme }) => ({
   [`& .${classes.title}`]: {
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
     marginBottom: theme.spacing(1),
   },
   [`& .${classes.paper}`]: {
     backgroundColor: theme.palette.background.paper,
-    whiteSpace: 'pre-line',
-    fontSize: 'var(--font-size)',
-    lineHeight: 'var(--line-height)',
-    fontFamily: 'var(--font-family)',
+    whiteSpace: "pre-line",
+    fontSize: "var(--font-size)",
+    lineHeight: "var(--line-height)",
+    fontFamily: "var(--font-family)",
   },
   [`& .${classes.root}`]: {
-    marginLeft: '10%',
+    marginLeft: "10%",
   },
   [`& .${classes.content}`]: {
-    marginLeft: '5%',
-    marginRight: '5%',
-    fontSize: 'var(--font-size)',
-    lineHeight: 'var(--line-height)',
-    fontFamily: 'var(--font-family)',
+    marginLeft: "5%",
+    marginRight: "5%",
+    fontSize: "var(--font-size)",
+    lineHeight: "var(--line-height)",
+    fontFamily: "var(--font-family)",
   },
 }));
 
 const NavigationContainer = styled(Container)(({ theme }) => ({
-  textAlign: 'center',
+  textAlign: "center",
   padding: theme.spacing(2),
   borderRadius: theme.shape.borderRadius,
 }));
 
-const NavButton = styled(Button)(({ theme }) => ({
+const customTheme = createTheme({
+  components: {
+    NavButton: {
+      styleOverrides: {
+        // root: {
+        //   color: "darkslategray",
+        // },
+        primary: {
+          color: "#dbe4ff",
+          backgroundColor: "#5c7cfa",
+          "&:hover": {
+            color: "black",
+            backgroundColor: "#748ffc",
+          },
+        },
+        secondary: {
+          color: "darkblue",
+        },
+      },
+    },
+  },
+});
+
+const NavButton = styled(Button, {
+  // Configure which props should be forwarded on DOM
+  shouldForwardProp: (prop) => prop !== "color",
+  name: "NavButton",
+  slot: "Root",
+
+  overridesResolver: (props, styles) => [
+    styles.root,
+    props.color === "primary" && styles.primary,
+    props.color === "secondary" && styles.secondary,
+  ],
+})(({ theme }) => ({
   margin: theme.spacing(1),
 }));
+
+const ServerNav = ({ sources, currentSource, title, onHandleServer }) => {
+  return (
+    <Box>
+      {sources?.map((source, index) => (
+        <NavButton
+          key={index}
+          variant="outlined"
+          onClick={() => {
+            onHandleServer(source);
+          }}
+          color={
+            !currentSource
+              ? index === 0
+                ? "primary"
+                : "secondary"
+              : currentSource[0] === source
+              ? "primary"
+              : "secondary"
+          }
+        >
+          <span>Server {index + 1}</span>
+        </NavButton>
+      ))}
+      <DownloadButton title={title} />
+    </Box>
+  );
+};
 
 const NovelReading = () => {
   const { title, chapter } = useParams();
   const navigate = useNavigate();
-  const initialChapter = chapter ? chapter : 'chuong-1';
+  const initialChapter = chapter ? chapter : "chuong-1";
   const [currentChapter, setCurrentChapter] = useState(initialChapter);
 
   const { source: sources } = useAllSources();
@@ -92,18 +163,22 @@ const NovelReading = () => {
   );
 
   function formatChapter(chapter) {
-    return chapter?.replace('chuong-', 'Chương ');
+    return chapter?.replace("chuong-", "Chương ");
   }
 
   function updateLocalStorage(title, chapter) {
     if (title) {
       const novel = { title, chapter };
-      let novelList = JSON.parse(localStorage.getItem('novelListRecently')) || [];
-      let novelListReaded = JSON.parse(localStorage.getItem('novelListReaded')) || [];
-  
+      let novelList =
+        JSON.parse(localStorage.getItem("novelListRecently")) || [];
+      let novelListReaded =
+        JSON.parse(localStorage.getItem("novelListReaded")) || [];
+
       const novelIndex = novelList.findIndex((item) => item.title === title);
-      const novelIndexReaded = novelListReaded.findIndex(item => item.title === title);
-  
+      const novelIndexReaded = novelListReaded.findIndex(
+        (item) => item.title === title
+      );
+
       if (novelIndex === -1) {
         novelList.push(novel);
       } else {
@@ -117,9 +192,9 @@ const NovelReading = () => {
           novelListReaded[novelIndexReaded].chapters.push(chapter);
         }
       }
-  
-      localStorage.setItem('novelListRecently', JSON.stringify(novelList));
-      localStorage.setItem('novelListReaded', JSON.stringify(novelListReaded));
+
+      localStorage.setItem("novelListRecently", JSON.stringify(novelList));
+      localStorage.setItem("novelListReaded", JSON.stringify(novelListReaded));
     }
   }
 
@@ -149,96 +224,87 @@ const NovelReading = () => {
 
   return (
     <Root>
-      <Paper className={classes.paper}>
-        <NavigationContainer>
-          <Grid>
-            <Breadcrumb breadcrumbs={breadcrumbs} />
-          </Grid>
-          <ChapterListFloating title={title} chapters={chapters}/>
-          <Typography variant="h5" gutterBottom className={classes.title}>
-            {fullTitle}
-          </Typography>
-          <Typography variant="subtitle1" gutterBottom>
-            {formatChapter(currentChapter)}
-          </Typography>
-          <Box>
-            <NavButton
-              variant="outlined"
-              onClick={handlePrevious}
-              disabled={currentChapterIndex <= 0}
-            >
-              &lt; Chương trước
-            </NavButton>
-            <NavButton>
-              <ChapterListDropDown title={title} chapters={chapters} />
-            </NavButton>
-            <NavButton
-              variant="outlined"
-              onClick={handleNext}
-              disabled={chapters && currentChapterIndex >= chapters.length - 1}
-            >
-              Chương tiếp &gt;
-            </NavButton>
-          </Box>
-          <Box>
-            {sources?.map((source, index) => (
+      <ThemeProvider theme={customTheme}>
+        <Paper className={classes.paper}>
+          <NavigationContainer>
+            <Grid>
+              <Breadcrumb breadcrumbs={breadcrumbs} />
+            </Grid>
+            <ChapterListFloating title={title} chapters={chapters} />
+            <Typography variant="h5" gutterBottom className={classes.title}>
+              {fullTitle}
+            </Typography>
+            <Typography variant="subtitle1" gutterBottom>
+              {formatChapter(currentChapter)}
+            </Typography>
+            <Box>
               <NavButton
-                key={index}
                 variant="outlined"
-                onClick={() => {
-                  handleServer(source);
-                }}
+                onClick={handlePrevious}
+                disabled={currentChapterIndex <= 0}
               >
-                Server {index + 1}
+                &lt; Chương trước
               </NavButton>
-            ))}
-            <DownloadButton title={title}/>
-          </Box>
-        </NavigationContainer>
-        <Typography
-          variant="subtitle1"
-          gutterBottom
-          className={classes.content}
-        >
-          {<div dangerouslySetInnerHTML={{ __html: content }} /> ||
-            'Nội dung chương đang được tải...'}
-        </Typography>
-        <NavigationContainer>
-          <Box>
-            <NavButton
-              variant="outlined"
-              onClick={handlePrevious}
-              disabled={currentChapterIndex <= 0}
-            >
-              &lt; Chương trước
-            </NavButton>
-            <NavButton>
-              <ChapterListDropDown title={title} chapters={chapters} />
-            </NavButton>
-            <NavButton
-              variant="outlined"
-              onClick={handleNext}
-              disabled={chapters && currentChapterIndex >= chapters.length - 1}
-            >
-              Chương tiếp &gt;
-            </NavButton>
-          </Box>
-          <Box>
-            {sources?.map((source, index) => (
+              <NavButton>
+                <ChapterListDropDown title={title} chapters={chapters} />
+              </NavButton>
               <NavButton
-                key={index}
                 variant="outlined"
-                onClick={() => {
-                  handleServer(source);
-                }}
+                onClick={handleNext}
+                disabled={
+                  chapters && currentChapterIndex >= chapters.length - 1
+                }
               >
-                Server {index + 1}
+                Chương tiếp &gt;
               </NavButton>
-            ))}
-            <DownloadButton title={title}/>
-          </Box>
-        </NavigationContainer>
-      </Paper>
+            </Box>
+
+            <ServerNav
+              sources={sources}
+              currentSource={currentSource}
+              title={title}
+              onHandleServer={handleServer}
+            />
+          </NavigationContainer>
+          <Typography
+            variant="subtitle1"
+            gutterBottom
+            className={classes.content}
+          >
+            {<div dangerouslySetInnerHTML={{ __html: content }} /> ||
+              "Nội dung chương đang được tải..."}
+          </Typography>
+          <NavigationContainer>
+            <Box>
+              <NavButton
+                variant="outlined"
+                onClick={handlePrevious}
+                disabled={currentChapterIndex <= 0}
+              >
+                &lt; Chương trước
+              </NavButton>
+              <NavButton>
+                <ChapterListDropDown title={title} chapters={chapters} />
+              </NavButton>
+              <NavButton
+                variant="outlined"
+                onClick={handleNext}
+                disabled={
+                  chapters && currentChapterIndex >= chapters.length - 1
+                }
+              >
+                Chương tiếp &gt;
+              </NavButton>
+            </Box>
+            <ServerNav
+              sources={sources}
+              currentSource={currentSource}
+              title={title}
+              onHandleServer={handleServer}
+            />
+          </NavigationContainer>
+        </Paper>
+      </ThemeProvider>
     </Root>
   );
 };

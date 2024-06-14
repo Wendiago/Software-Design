@@ -1,6 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
-import { useAllSources } from './useAllSources';
-import { categoryAPI } from '../api';
+import { useQuery } from "@tanstack/react-query";
+import { useAllSources } from "./useAllSources";
+import { categoryAPI } from "../api";
 
 export function useAllCategories() {
   const { source } = useAllSources();
@@ -9,7 +9,7 @@ export function useAllCategories() {
     error,
     data: categories,
   } = useQuery({
-    queryKey: ['categories'],
+    queryKey: ["categories"],
     queryFn: () => categoryAPI.getAllCategories({ source }),
   });
 
@@ -23,7 +23,7 @@ export function useNovelByCategory(category, pageNumber) {
     error,
     data: { data } = {},
   } = useQuery({
-    queryKey: ['novel-by-category', category, pageNumber],
+    queryKey: ["novel-by-category", category, pageNumber],
     queryFn: () =>
       categoryAPI.getNovelByCategory({ category, pageNumber, source }),
   });
