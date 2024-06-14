@@ -1,15 +1,10 @@
-import { 
-  Select, 
-  MenuItem, 
-  Paper,
-  useTheme
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { useNavigate } from 'react-router-dom';
-import { normalizeString } from '../../utils/stringUtils';
-import PropTypes from 'prop-types';
+import { Select, MenuItem, Paper, useTheme } from "@mui/material";
+import { styled } from "@mui/material/styles";
+import { useNavigate } from "react-router-dom";
+import { normalizeString } from "../../utils/stringUtils";
+import PropTypes from "prop-types";
 
-const PREFIX = 'ChapterList';
+const PREFIX = "ChapterList";
 const classes = {
   root: `${PREFIX}-root`,
   paper: `${PREFIX}-paper`,
@@ -17,28 +12,28 @@ const classes = {
   text: `${PREFIX}-text`,
 };
 
-const Root = styled('div')(({ theme }) => ({
+const Root = styled("div")(({ theme }) => ({
   [`& .${classes.paper}`]: {
     backgroundColor: theme.palette.background.default,
-    maxHeight: '40px',
+    maxHeight: "40px",
   },
   [`& .${classes.root}`]: {
     marginTop: theme.spacing(2),
   },
   [`& .${classes.select}`]: {
-    maxWeight: '100px',
-    maxHeight: '38px',
+    maxWeight: "100px",
+    maxHeight: "38px",
     borderColor: theme.palette.primary.main,
-    '& .MuiOutlinedInput-notchedOutline': {
+    "& .MuiOutlinedInput-notchedOutline": {
       borderColor: theme.palette.primary.main,
     },
-    '&:hover .MuiOutlinedInput-notchedOutline': {
+    "&:hover .MuiOutlinedInput-notchedOutline": {
       borderColor: theme.palette.primary.main,
     },
-    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
       borderColor: theme.palette.primary.main,
     },
-    '& .MuiSelect-icon': {
+    "& .MuiSelect-icon": {
       color: theme.palette.primary.main,
     },
   },
@@ -53,7 +48,7 @@ const CustomSelect = styled(Select)(({ theme }) => ({
 
 const CustomMenuItem = styled(MenuItem)(({ theme }) => ({
   color: theme.palette.text.primary,
-  '&.Mui-selected': {
+  "&.Mui-selected": {
     color: theme.palette.primary.main,
   },
 }));
@@ -64,12 +59,14 @@ const ChapterListDropDown = ({ title, chapters }) => {
 
   const handleChapter = (chapterNumber) => {
     navigate(`/doc-truyen/${normalizeString(title)}/${chapterNumber}`);
-    window.location.reload();
   };
 
-  const formatChapter = (chapter) => chapter.replace('chuong-', 'Chương ');
-  const novelListReaded = JSON.parse(localStorage.getItem('novelListReaded')) || [];
-  const readChapters = novelListReaded.find(novel => normalizeString(novel.title) === title)?.chapters || [];
+  const formatChapter = (chapter) => chapter.replace("chuong-", "Chương ");
+  const novelListReaded =
+    JSON.parse(localStorage.getItem("novelListReaded")) || [];
+  const readChapters =
+    novelListReaded.find((novel) => normalizeString(novel.title) === title)
+      ?.chapters || [];
 
   return (
     <Root>
@@ -88,11 +85,17 @@ const ChapterListDropDown = ({ title, chapters }) => {
           }}
         >
           <CustomMenuItem value="" disabled>
-          Chọn chương
+            Chọn chương
           </CustomMenuItem>
           {chapters?.map((chapter, index) => (
             <CustomMenuItem key={index} value={chapter}>
-              <div style={{ color: readChapters.includes((chapter)) ? theme.palette.text.secondary : theme.palette.text.primary }}>
+              <div
+                style={{
+                  color: readChapters.includes(chapter)
+                    ? theme.palette.text.secondary
+                    : theme.palette.text.primary,
+                }}
+              >
                 {formatChapter(chapter)}
               </div>
             </CustomMenuItem>

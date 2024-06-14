@@ -1,20 +1,20 @@
-import { useState } from 'react';
-import { 
-  Button, 
-  Paper, 
-  List, 
-  ListItem, 
-  ListItemText, 
-  Typography, 
-  useTheme 
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { useNavigate } from 'react-router-dom';
-import { normalizeString } from '../../utils/stringUtils';
-import { FaChevronLeft, FaChevronRight } from 'react-icons/fa'; 
-import PropTypes from 'prop-types';
+import { useState } from "react";
+import {
+  Button,
+  Paper,
+  List,
+  ListItem,
+  ListItemText,
+  Typography,
+  useTheme,
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import { useNavigate } from "react-router-dom";
+import { normalizeString } from "../../utils/stringUtils";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import PropTypes from "prop-types";
 
-const PREFIX = 'ChapterListFloating';
+const PREFIX = "ChapterListFloating";
 const classes = {
   root: `${PREFIX}-root`,
   paper: `${PREFIX}-paper`,
@@ -24,36 +24,36 @@ const classes = {
   listItem: `${PREFIX}-listItem`,
 };
 
-const Root = styled('div')(({ theme }) => ({
+const Root = styled("div")(({ theme }) => ({
   [`&.${classes.root}`]: {
-    position: 'relative',
+    position: "relative",
     padding: theme.spacing(2),
   },
   [`& .${classes.button}`]: {
     backgroundColor: theme.palette.background.default,
-    position: 'fixed',
+    position: "fixed",
     top: theme.spacing(10),
     right: theme.spacing(2),
   },
   [`& .${classes.floatingPanel}`]: {
-    position: 'fixed',
+    position: "fixed",
     top: 0,
     right: 0,
-    width: '300px',
-    height: '100%',
+    width: "300px",
+    height: "100%",
     backgroundColor: theme.palette.background.paper,
     boxShadow: theme.shadows[5],
     zIndex: 1300,
-    overflowY: 'auto',
+    overflowY: "auto",
     padding: theme.spacing(2),
   },
   [`& .${classes.list}`]: {
-    maxHeight: '100%',
-    overflowY: 'auto',
+    maxHeight: "100%",
+    overflowY: "auto",
   },
   [`& .${classes.listItem}`]: {
-    cursor: 'pointer',
-    '&:hover': {
+    cursor: "pointer",
+    "&:hover": {
       backgroundColor: theme.palette.action.hover,
     },
   },
@@ -71,42 +71,47 @@ const ChapterListFloating = ({ title, chapters }) => {
   const handleChapter = (chapterNumber) => {
     navigate(`/doc-truyen/${normalizeString(title)}/${chapterNumber}`);
     setIsPanelOpen(false);
-    window.location.reload();
   };
 
-  const formatChapter = (chapter) => chapter.replace('chuong-', 'Chương ');
-  const novelListReaded = JSON.parse(localStorage.getItem('novelListReaded')) || [];
-  const readChapters = novelListReaded.find(novel => normalizeString(novel.title) === title)?.chapters || [];
-  
+  const formatChapter = (chapter) => chapter.replace("chuong-", "Chương ");
+  const novelListReaded =
+    JSON.parse(localStorage.getItem("novelListReaded")) || [];
+  const readChapters =
+    novelListReaded.find((novel) => normalizeString(novel.title) === title)
+      ?.chapters || [];
+
   return (
     <Root className={classes.root}>
       {isPanelOpen ? (
         <Paper className={classes.floatingPanel}>
           <Typography variant="h6">
             <Button onClick={handleTogglePanel}>
-              <FaChevronRight/>
+              <FaChevronRight />
             </Button>
-                    Chọn chương
+            Chọn chương
           </Typography>
           <List className={classes.list}>
             {chapters?.map((chapter, index) => (
-              <ListItem 
-                key={index} 
-                className={classes.listItem} 
+              <ListItem
+                key={index}
+                className={classes.listItem}
                 onClick={() => handleChapter(chapter)}
               >
-                <ListItemText 
+                <ListItemText
                   primary={formatChapter(chapter)}
-                  style={{ color: readChapters.includes((chapter)) ? theme.palette.text.secondary : theme.palette.text.primary }}
+                  style={{
+                    color: readChapters.includes(chapter)
+                      ? theme.palette.text.secondary
+                      : theme.palette.text.primary,
+                  }}
                 />
-                        
               </ListItem>
             ))}
           </List>
         </Paper>
       ) : (
         <Button className={classes.button} onClick={handleTogglePanel}>
-          <FaChevronLeft/>
+          <FaChevronLeft />
         </Button>
       )}
     </Root>

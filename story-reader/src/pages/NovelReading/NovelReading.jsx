@@ -1,3 +1,5 @@
+/* eslint-disable react/prop-types */
+
 import { useState, useEffect } from "react";
 import {
   Container,
@@ -10,6 +12,7 @@ import {
   ThemeProvider,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+
 import { useParams, useNavigate } from "react-router-dom";
 import { Breadcrumb, Loading, DownloadButton } from "../../components";
 import ChapterListDropDown from "./ChapterListDropDown";
@@ -20,6 +23,7 @@ import {
   useNovelChapterList,
   useNovelDetail,
 } from "../../hooks/novelHook";
+import toast from "react-hot-toast";
 
 const PREFIX = "NovelReading";
 const classes = {
@@ -27,6 +31,7 @@ const classes = {
   title: `${PREFIX}-title`,
   paper: `${PREFIX}-paper`,
   content: `${PREFIX}-content`,
+  noContent: `${PREFIX}-noContent`,
 };
 
 const Root = styled("div")(({ theme }) => ({
@@ -50,6 +55,9 @@ const Root = styled("div")(({ theme }) => ({
     fontSize: "var(--font-size)",
     lineHeight: "var(--line-height)",
     fontFamily: "var(--font-family)",
+  },
+  [`& .${classes.noContent}`]: {
+    textAlign: "center",
   },
 }));
 
@@ -83,7 +91,6 @@ const customTheme = createTheme({
 });
 
 const NavButton = styled(Button, {
-  // Configure which props should be forwarded on DOM
   shouldForwardProp: (prop) => prop !== "color",
   name: "NavButton",
   slot: "Root",
@@ -128,20 +135,17 @@ const ServerNav = ({ sources, currentSource, title, onHandleServer }) => {
 const NovelReading = () => {
   const { title, chapter } = useParams();
   const navigate = useNavigate();
-  const initialChapter = chapter ? chapter : "chuong-1";
-  const [currentChapter, setCurrentChapter] = useState(initialChapter);
+
+  const currentChapter = chapter || "chuong-1";
 
   const { source: sources } = useAllSources();
-  const [currentSource, setCurrentSource] = useState(sources);
+  const [currentSource, setCurrentSource] = useState(null);
   const { data: { raw_chapter_number_list: chapters } = {} } =
     useNovelChapterList(title, 1);
   const currentChapterIndex = chapters?.indexOf(currentChapter);
 
-  const { data: { content } = {} } = useNovelChapterContent(
-    title,
-    currentChapter,
-    currentSource || sources
-  );
+  const { isPending: isLoadingContent, data: { content } = {} } =
+    useNovelChapterContent(title, currentChapter, currentSource || sources);
 
   const { data: { title: fullTitle } = {} } = useNovelDetail(title);
   const breadcrumbs = [
@@ -201,7 +205,6 @@ const NovelReading = () => {
   const handlePrevious = () => {
     if (chapters && currentChapterIndex > 0) {
       const newChapter = chapters[currentChapterIndex - 1];
-      setCurrentChapter(newChapter);
       navigate(`/doc-truyen/${title}/${newChapter}`);
     }
   };
@@ -209,12 +212,18 @@ const NovelReading = () => {
   const handleNext = () => {
     if (chapters && currentChapterIndex < chapters.length - 1) {
       const newChapter = chapters[currentChapterIndex + 1];
-      setCurrentChapter(newChapter);
       navigate(`/doc-truyen/${title}/${newChapter}`);
     }
   };
 
   const handleServer = (source) => {
+    if (currentSource?.at(0) === source) return;
+
+    toast.success(
+      <p>
+        Chuyển sang server <strong>{source}</strong> thành công 😊
+      </p>
+    );
     setCurrentSource([source]);
   };
 
@@ -271,8 +280,19 @@ const NovelReading = () => {
             gutterBottom
             className={classes.content}
           >
-            {<div dangerouslySetInnerHTML={{ __html: content }} /> ||
-              "Nội dung chương đang được tải..."}
+            {isLoadingContent && (
+              <div className={classes.noContent}>
+                Nội dung chương đang được tải...
+              </div>
+            )}
+            {content && <div dangerouslySetInnerHTML={{ __html: content }} />}
+            {!content && !isLoadingContent && (
+              <div className={classes.noContent}>
+                Oops!!! Server{" "}
+                <strong>{currentSource ? currentSource[0] : sources[0]}</strong>{" "}
+                không hỗ trợ truyện này
+              </div>
+            )}
           </Typography>
           <NavigationContainer>
             <Box>

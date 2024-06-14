@@ -77,7 +77,7 @@ function App() {
         position="top-center"
         toastOptions={{
           success: {
-            duration: 3000,
+            duration: 2000,
           },
           error: {
             duration: 5000,
