@@ -2,7 +2,6 @@ package com.example.demo.service.ExportServices;
 
 import com.example.demo.dto.NovelDownloadContentDTO;
 import nl.siegmann.epublib.domain.Book;
-import nl.siegmann.epublib.domain.Author;
 import nl.siegmann.epublib.domain.Resource;
 import nl.siegmann.epublib.epub.EpubWriter;
 import org.slf4j.Logger;
@@ -11,15 +10,14 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+
 @Service
-class EpubExportService implements IExportServiceStrategy {
-    private static final Logger log = LoggerFactory.getLogger(EpubExportService.class);
+public class Epub_ExportService implements IExportServiceStrategy {
+    private static final Logger log = LoggerFactory.getLogger(Epub_ExportService.class);
 
     @Override
     public byte[] exportNovel(NovelDownloadContentDTO novelDownloadContentDTO) throws Exception {
@@ -54,3 +52,4 @@ class EpubExportService implements IExportServiceStrategy {
         return title.replaceAll("[^a-zA-Z0-9.-]", "_");
     }
 }
+
