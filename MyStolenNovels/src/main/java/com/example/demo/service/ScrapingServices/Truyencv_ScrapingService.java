@@ -3,6 +3,7 @@ package com.example.demo.service.ScrapingServices;
 import com.example.demo.dto.NovelByCatDTO;
 import com.example.demo.dto.NovelDownloadContentDTO;
 import com.example.demo.response.*;
+import com.example.demo.utils.HTTPClientRetry;
 import com.example.demo.utils.StringManipulator;
 import lombok.AllArgsConstructor;
 import org.jsoup.Jsoup;
@@ -22,7 +23,9 @@ import java.util.regex.Pattern;
 public class Truyencv_ScrapingService implements IScrapingServiceStrategy {
     @Autowired
     private StringManipulator stringManipulator;
-    
+    public void setStringManipulator(StringManipulator stringManipulator) {
+        this.stringManipulator = stringManipulator;
+    }
     private static int getTotalPages(Document document){
         Elements pageLinks = document.getElementsByClass("flex mx-auto border border-solid border-[#dddddd] max-w-max items-center mt-[20px]");
         Element lastPageElement = pageLinks.select("li").last();
