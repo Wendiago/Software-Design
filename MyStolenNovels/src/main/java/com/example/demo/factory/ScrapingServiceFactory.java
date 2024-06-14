@@ -1,81 +1,66 @@
 package com.example.demo.factory;
-
 import com.example.demo.service.ScrapingServices.IScrapingServiceStrategy;
 import jakarta.annotation.PostConstruct;
-import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class ScrapingServiceFactory {
-
     private final Map<String, IScrapingServiceStrategy> strategies = new ConcurrentHashMap<>();
-    private final Reflections reflections;
+    private final ApplicationContext applicationContext;
     private static final Logger log = LoggerFactory.getLogger(ScrapingServiceFactory.class);
 
     @Autowired
-    public ScrapingServiceFactory() {
-        this.reflections = new Reflections("com.example.demo.service.ScrapingServices");
+    public ScrapingServiceFactory(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
     }
 
     @PostConstruct
-    public void init() {
-        resetStrategies();
-    }
-
-    public void resetStrategies() {
+    public void init() throws Exception {
         try {
-            strategies.clear();
-            Set<Class<? extends IScrapingServiceStrategy>> classes = reflections.getSubTypesOf(IScrapingServiceStrategy.class);
-            for (Class<? extends IScrapingServiceStrategy> clazz : classes) {
-                IScrapingServiceStrategy strategy = clazz.getDeclaredConstructor().newInstance(); // Instantiate using constructor
-                log.info("Loaded strategy: {}", clazz.getSimpleName());
-                registerScrapingStrategy(getStrategyName(clazz.getSimpleName()), strategy);
+            Map<String, IScrapingServiceStrategy> beans = applicationContext.getBeansOfType(IScrapingServiceStrategy.class);
+            for (Map.Entry<String, IScrapingServiceStrategy> bean : beans.entrySet()) {
+                String strategyName = bean.getKey();
+                IScrapingServiceStrategy strategy = bean.getValue();
+                registerScrapingStrategy(strategyName, strategy);
+                log.info("Get scraping service strategy {}", strategyName);
             }
         } catch (Exception e) {
-            log.error("Error initializing scraping strategies", e);
+            throw new Exception(e.getMessage());
         }
     }
 
-    // Method to register a new scraping strategy dynamically
-    public void registerScrapingStrategy(String source, IScrapingServiceStrategy strategy) {
-        strategies.put(source, strategy);
+    private static String getStrategyName(String className) {
+        int endIndex = className.indexOf("_ScrapingService");
+        return className.substring(0, endIndex);
     }
 
-    private static String getStrategyName(String beanName) {
-        int endIndex = beanName.indexOf("_ScrapingService");
-        if (endIndex != -1) {
-            return beanName.substring(0, endIndex).toLowerCase();
-        } else {
-            log.error("Error getting strategy name for bean: {}", beanName);
-            return null;
+    public void registerScrapingStrategy(String strategyName, IScrapingServiceStrategy strategy) throws Exception {
+        try {
+            strategies.put(getStrategyName(strategyName), strategy);
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
         }
     }
 
-    // Method to unregister a scraping strategy dynamically
-    public void unregisterScrapingStrategy(String source) {
-        strategies.remove(source);
+    public void unregisterScrapingStrategy(String strategyName) {
+        strategies.remove(strategyName);
     }
 
-    // Method to get available sources
     public List<String> getAvailableSources() {
-        return new ArrayList<>(strategies.keySet());
+        return strategies.keySet().stream().toList();
     }
 
-    // Method to get a scraping strategy by source name
-    public IScrapingServiceStrategy getScrapingStrategy(String source) {
-        IScrapingServiceStrategy strategy = strategies.get(source);
+    public IScrapingServiceStrategy getScrapingStrategy(String format) throws Exception {
+        IScrapingServiceStrategy strategy = strategies.get(format);
         if (strategy == null) {
-            throw new IllegalArgumentException("Invalid source: " + source);
+            throw new IllegalArgumentException("Can't not get strategy " + format);
         }
         return strategy;
     }

@@ -6,6 +6,7 @@ import com.example.demo.response.*;
 import com.example.demo.utils.HTTPClientRetry;
 import com.example.demo.utils.StringManipulator;
 import com.google.common.util.concurrent.RateLimiter;
+import lombok.AllArgsConstructor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -33,10 +34,6 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
     @Autowired
     private HTTPClientRetry httpClientRetry;
     private static final Logger log = LoggerFactory.getLogger(Truyenfull_ScrapingService.class);
-    public void setStringManipulator(StringManipulator stringManipulator) {
-        this.stringManipulator = stringManipulator;
-        this.httpClientRetry = new HTTPClientRetry();
-    }
     //For getting download content
     private static final int MAX_RETRIES = 3;
     private static final int TIMEOUT = 10;
