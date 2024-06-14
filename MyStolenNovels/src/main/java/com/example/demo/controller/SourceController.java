@@ -1,8 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.factory.ScrapingServiceFactory;
 import com.example.demo.response.BaseResponse;
-import com.example.demo.response.SearchResponse;
 import com.example.demo.utils.MessageKeys;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;

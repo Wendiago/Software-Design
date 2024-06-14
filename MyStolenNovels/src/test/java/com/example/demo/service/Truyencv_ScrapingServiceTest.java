@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.demo.dto.NovelByCatDTO;
-import com.example.demo.dto.NovelDownloadContentDTO;
-import com.example.demo.factory.ScrapingServiceFactory;
 import com.example.demo.response.CategoriesResponse;
 import com.example.demo.response.NovelByCatResponse;
 import com.example.demo.response.NovelChapterContentResponse;
@@ -29,8 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
