@@ -18,7 +18,6 @@ import java.util.concurrent.TimeUnit;
 public class HTTPClientRetry {
     private static final int MAX_RETRIES = 3;
     private static final int DELAY_TIME = 150000;
-    private static final Logger log = LoggerFactory.getLogger(HTTPClientRetry.class);
 
     public String getWithRetry(URI uri) throws IOException, InterruptedException {
         int attempt = 0;
@@ -26,9 +25,9 @@ public class HTTPClientRetry {
             attempt++;
             try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
                 HttpGet request = new HttpGet(uri);
-                log.info("httpclientRetry - request: {}", String.valueOf(request));
+                //log.info("httpclientRetry - request: {}", String.valueOf(request));
                 try (CloseableHttpResponse response = httpClient.execute(request)) {
-                    log.info("httpclientRetry - response: {}", response);
+                    //log.info("httpclientRetry - response: {}", response);
                     int statusCode = response.getStatusLine().getStatusCode();
                     if (statusCode >= 200 && statusCode < 300) {
                         HttpEntity entity = response.getEntity();
