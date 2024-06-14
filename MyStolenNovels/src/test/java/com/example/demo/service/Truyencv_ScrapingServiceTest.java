@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.demo.dto.NovelByCatDTO;
-import com.example.demo.dto.NovelDownloadContentDTO;
-import com.example.demo.factory.ScrapingServiceFactory;
 import com.example.demo.response.CategoriesResponse;
 import com.example.demo.response.NovelByCatResponse;
 import com.example.demo.response.NovelChapterContentResponse;
@@ -28,6 +26,11 @@ import org.mockito.MockitoAnnotations;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+<<<<<<< HEAD
+=======
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.mock;
+>>>>>>> 1133aa450bc43422bbfe1bb1804c7c5691e63dc9
 import static org.mockito.Mockito.when;
 
 class Truyencv_ScrapingServiceTest {

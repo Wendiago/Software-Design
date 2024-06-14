@@ -52,3 +52,4 @@ public class Epub_ExportService implements IExportServiceStrategy {
         return title.replaceAll("[^a-zA-Z0-9.-]", "_");
     }
 }
+
