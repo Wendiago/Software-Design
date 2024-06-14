@@ -24,7 +24,7 @@ public class ExportServiceFactory {
     }
 
     @PostConstruct
-    private void init() throws Exception {
+    public void init() throws Exception {
         try {
             Map<String, IExportServiceStrategy> beans = applicationContext.getBeansOfType(IExportServiceStrategy.class);
             for (Map.Entry<String, IExportServiceStrategy> bean : beans.entrySet()) {
