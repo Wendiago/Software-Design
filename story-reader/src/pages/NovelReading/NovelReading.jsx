@@ -1,20 +1,11 @@
 /* eslint-disable react/prop-types */
 
 import { useState, useEffect } from "react";
-import {
-  Container,
-  Grid,
-  Box,
-  Button,
-  Typography,
-  Paper,
-  createTheme,
-  ThemeProvider,
-} from "@mui/material";
+import { Container, Grid, Box, Button, Typography, Paper } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { useParams, useNavigate } from "react-router-dom";
-import { Breadcrumb, Loading, DownloadButton } from "../../components";
+import { Breadcrumb, Loading } from "../../components";
 import ChapterListDropDown from "./ChapterListDropDown";
 import ChapterListFloating from "./ChapterListFloating";
 import { useAllSources } from "../../hooks/useAllSources";
@@ -24,6 +15,8 @@ import {
   useNovelDetail,
 } from "../../hooks/novelHook";
 import toast from "react-hot-toast";
+import { usePrioritizedSources } from "../../contexts/PrioritizedSourcesContext";
+import ServerNav from "./ServerNav";
 
 const PREFIX = "NovelReading";
 const classes = {
@@ -67,70 +60,9 @@ const NavigationContainer = styled(Container)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
 }));
 
-const customTheme = createTheme({
-  components: {
-    NavButton: {
-      styleOverrides: {
-        // root: {
-        //   color: "darkslategray",
-        // },
-        primary: {
-          color: "#dbe4ff",
-          backgroundColor: "#5c7cfa",
-          "&:hover": {
-            color: "black",
-            backgroundColor: "#748ffc",
-          },
-        },
-        secondary: {
-          color: "darkblue",
-        },
-      },
-    },
-  },
-});
-
-const NavButton = styled(Button, {
-  shouldForwardProp: (prop) => prop !== "color",
-  name: "NavButton",
-  slot: "Root",
-
-  overridesResolver: (props, styles) => [
-    styles.root,
-    props.color === "primary" && styles.primary,
-    props.color === "secondary" && styles.secondary,
-  ],
-})(({ theme }) => ({
+const NavButton = styled(Button)(({ theme }) => ({
   margin: theme.spacing(1),
 }));
-
-const ServerNav = ({ sources, currentSource, title, onHandleServer }) => {
-  return (
-    <Box>
-      {sources?.map((source, index) => (
-        <NavButton
-          key={index}
-          variant="outlined"
-          onClick={() => {
-            onHandleServer(source);
-          }}
-          color={
-            !currentSource
-              ? index === 0
-                ? "primary"
-                : "secondary"
-              : currentSource[0] === source
-              ? "primary"
-              : "secondary"
-          }
-        >
-          <span>Server {index + 1}</span>
-        </NavButton>
-      ))}
-      <DownloadButton title={title} />
-    </Box>
-  );
-};
 
 const NovelReading = () => {
   const { title, chapter } = useParams();
@@ -139,15 +71,20 @@ const NovelReading = () => {
   const currentChapter = chapter || "chuong-1";
 
   const { source: sources } = useAllSources();
-  const [currentSource, setCurrentSource] = useState(null);
+  const { prioritizedSources } = usePrioritizedSources();
+  const [currentSource, setCurrentSource] = useState(prioritizedSources);
+
+  // , addPrioritizedSource, deletePrioritizedSource
   const { data: { raw_chapter_number_list: chapters } = {} } =
     useNovelChapterList(title, 1);
   const currentChapterIndex = chapters?.indexOf(currentChapter);
 
+  const sourcesToFetch = currentSource.length != 0 ? currentSource : sources;
   const { isPending: isLoadingContent, data: { content } = {} } =
-    useNovelChapterContent(title, currentChapter, currentSource || sources);
+    useNovelChapterContent(title, currentChapter, sourcesToFetch);
 
   const { data: { title: fullTitle } = {} } = useNovelDetail(title);
+
   const breadcrumbs = [
     {
       name: fullTitle,
@@ -233,98 +170,92 @@ const NovelReading = () => {
 
   return (
     <Root>
-      <ThemeProvider theme={customTheme}>
-        <Paper className={classes.paper}>
-          <NavigationContainer>
-            <Grid>
-              <Breadcrumb breadcrumbs={breadcrumbs} />
-            </Grid>
-            <ChapterListFloating title={title} chapters={chapters} />
-            <Typography variant="h5" gutterBottom className={classes.title}>
-              {fullTitle}
-            </Typography>
-            <Typography variant="subtitle1" gutterBottom>
-              {formatChapter(currentChapter)}
-            </Typography>
-            <Box>
-              <NavButton
-                variant="outlined"
-                onClick={handlePrevious}
-                disabled={currentChapterIndex <= 0}
-              >
-                &lt; Chương trước
-              </NavButton>
-              <NavButton>
-                <ChapterListDropDown title={title} chapters={chapters} />
-              </NavButton>
-              <NavButton
-                variant="outlined"
-                onClick={handleNext}
-                disabled={
-                  chapters && currentChapterIndex >= chapters.length - 1
-                }
-              >
-                Chương tiếp &gt;
-              </NavButton>
-            </Box>
-
-            <ServerNav
-              sources={sources}
-              currentSource={currentSource}
-              title={title}
-              onHandleServer={handleServer}
-            />
-          </NavigationContainer>
-          <Typography
-            variant="subtitle1"
-            gutterBottom
-            className={classes.content}
-          >
-            {isLoadingContent && (
-              <div className={classes.noContent}>
-                Nội dung chương đang được tải...
-              </div>
-            )}
-            {content && <div dangerouslySetInnerHTML={{ __html: content }} />}
-            {!content && !isLoadingContent && (
-              <div className={classes.noContent}>
-                Oops!!! Server{" "}
-                <strong>{currentSource ? currentSource[0] : sources[0]}</strong>{" "}
-                không hỗ trợ truyện này
-              </div>
-            )}
+      <Paper className={classes.paper}>
+        <NavigationContainer>
+          <Grid>
+            <Breadcrumb breadcrumbs={breadcrumbs} />
+          </Grid>
+          <ChapterListFloating title={title} chapters={chapters} />
+          <Typography variant="h5" gutterBottom className={classes.title}>
+            {fullTitle}
           </Typography>
-          <NavigationContainer>
-            <Box>
-              <NavButton
-                variant="outlined"
-                onClick={handlePrevious}
-                disabled={currentChapterIndex <= 0}
-              >
-                &lt; Chương trước
-              </NavButton>
-              <NavButton>
-                <ChapterListDropDown title={title} chapters={chapters} />
-              </NavButton>
-              <NavButton
-                variant="outlined"
-                onClick={handleNext}
-                disabled={
-                  chapters && currentChapterIndex >= chapters.length - 1
-                }
-              >
-                Chương tiếp &gt;
-              </NavButton>
-            </Box>
-            <ServerNav
-              sources={sources}
-              currentSource={currentSource}
-              title={title}
-              onHandleServer={handleServer}
-            />
-          </NavigationContainer>
-        </Paper>
-      </ThemeProvider>
+          <Typography variant="subtitle1" gutterBottom>
+            {formatChapter(currentChapter)}
+          </Typography>
+          <Box>
+            <NavButton
+              variant="outlined"
+              onClick={handlePrevious}
+              disabled={currentChapterIndex <= 0}
+            >
+              &lt; Chương trước
+            </NavButton>
+            <NavButton>
+              <ChapterListDropDown title={title} chapters={chapters} />
+            </NavButton>
+            <NavButton
+              variant="outlined"
+              onClick={handleNext}
+              disabled={chapters && currentChapterIndex >= chapters.length - 1}
+            >
+              Chương tiếp &gt;
+            </NavButton>
+          </Box>
+
+          <ServerNav
+            sources={sources}
+            currentSource={currentSource}
+            title={title}
+            onHandleServer={handleServer}
+          />
+        </NavigationContainer>
+        <Typography
+          variant="subtitle1"
+          gutterBottom
+          className={classes.content}
+        >
+          {isLoadingContent && (
+            <div className={classes.noContent}>
+              Nội dung chương đang được tải...
+            </div>
+          )}
+          {content && <div dangerouslySetInnerHTML={{ __html: content }} />}
+          {!content && !isLoadingContent && (
+            <div className={classes.noContent}>
+              Oops!!! Server{" "}
+              <strong>{currentSource ? currentSource[0] : sources[0]}</strong>{" "}
+              không hỗ trợ truyện này
+            </div>
+          )}
+        </Typography>
+        <NavigationContainer>
+          <Box>
+            <NavButton
+              variant="outlined"
+              onClick={handlePrevious}
+              disabled={currentChapterIndex <= 0}
+            >
+              &lt; Chương trước
+            </NavButton>
+            <NavButton>
+              <ChapterListDropDown title={title} chapters={chapters} />
+            </NavButton>
+            <NavButton
+              variant="outlined"
+              onClick={handleNext}
+              disabled={chapters && currentChapterIndex >= chapters.length - 1}
+            >
+              Chương tiếp &gt;
+            </NavButton>
+          </Box>
+          <ServerNav
+            sources={sources}
+            currentSource={currentSource}
+            title={title}
+            onHandleServer={handleServer}
+          />
+        </NavigationContainer>
+      </Paper>
     </Root>
   );
 };

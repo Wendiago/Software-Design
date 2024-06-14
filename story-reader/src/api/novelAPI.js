@@ -1,19 +1,25 @@
-import customAxios from './customAPI';
+import customAxios from "./customAPI";
 
 class NovelAPI {
   async getNovelDetail({ title, source }) {
-    if (!source)
-    {throw new Error('No source provided or currently available 💥');}
+    if (!source) {
+      throw new Error("No source provided or currently available 💥");
+    }
     const response = await customAxios.post(`/${title}`, source);
     return response.data;
   }
 
   async getNovelChapterList({ title, pageNumber, source }) {
     console.log(`/${title}/chapter-list?page=${pageNumber}`);
-    if (!title) {throw new Error('No title specified 💥');}
-    if (!pageNumber) {throw new Error('No page specified 💥');}
-    if (!source)
-    {throw new Error('No source provided or currently available 💥');}
+    if (!title) {
+      throw new Error("No title specified 💥");
+    }
+    if (!pageNumber) {
+      throw new Error("No page specified 💥");
+    }
+    if (!source) {
+      throw new Error("No source provided or currently available 💥");
+    }
 
     const response = await customAxios.post(
       `/${title}/chapter-list?page=${pageNumber}`,
@@ -23,10 +29,15 @@ class NovelAPI {
   }
 
   async getNovelChapterContent({ title, chapterNumber, source }) {
-    if (!title) {throw new Error('No title specified 💥');}
-    if (!chapterNumber) {throw new Error('No chapter number specified 💥');}
-    if (!source)
-    {throw new Error('No source provided or currently available 💥');}
+    if (!title) {
+      throw new Error("No title specified 💥");
+    }
+    if (!chapterNumber) {
+      throw new Error("No chapter number specified 💥");
+    }
+    if (!source) {
+      throw new Error("No source provided or currently available 💥");
+    }
 
     const response = await customAxios.post(
       `/${title}/${chapterNumber}`,
@@ -36,9 +47,12 @@ class NovelAPI {
   }
 
   async searchNovel({ keyword, pageNumber = 1, source }) {
-    if (!keyword) {throw new Error('No keyword specified 💥');}
-    if (!source)
-    {throw new Error('No source provided or currently available 💥');}
+    if (!keyword) {
+      throw new Error("No keyword specified 💥");
+    }
+    if (!source) {
+      throw new Error("No source provided or currently available 💥");
+    }
 
     const response = await customAxios.post(
       `/search?keyword=${keyword}&page=${pageNumber}`,

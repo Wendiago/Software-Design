@@ -15,6 +15,7 @@ import {
   AuthorRelated,
 } from "./pages";
 import "./App.css";
+import { PrioritizedSourcesProvider } from "./contexts/PrioritizedSourcesContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -42,33 +43,35 @@ function App() {
       <ReactQueryDevtools initialIsOpen={false} />
 
       <ThemeProvider theme={theme}>
-        <BrowserRouter>
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <Container
-                  selectedTheme={selectedTheme}
-                  toggleTheme={toggleTheme}
+        <PrioritizedSourcesProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <Container
+                    selectedTheme={selectedTheme}
+                    toggleTheme={toggleTheme}
+                  />
+                }
+              >
+                <Route index element={<Navigate replace to="/trang-chu" />} />
+                <Route path="/trang-chu" element={<Homepage />} />
+                <Route path="/the-loai/:category" element={<Categories />} />
+                <Route path="/tim-kiem/:keyword" element={<SearchResult />} />
+                <Route
+                  path="/gioi-thieu/:title"
+                  element={<NovelIntroduction />}
                 />
-              }
-            >
-              <Route index element={<Navigate replace to="/trang-chu" />} />
-              <Route path="/trang-chu" element={<Homepage />} />
-              <Route path="/the-loai/:category" element={<Categories />} />
-              <Route path="/tim-kiem/:keyword" element={<SearchResult />} />
-              <Route
-                path="/gioi-thieu/:title"
-                element={<NovelIntroduction />}
-              />
-              <Route path="/tac-gia/:author" element={<AuthorRelated />} />
-              <Route
-                path="/doc-truyen/:title/:chapter"
-                element={<NovelReading />}
-              />
-            </Route>
-          </Routes>
-        </BrowserRouter>
+                <Route path="/tac-gia/:author" element={<AuthorRelated />} />
+                <Route
+                  path="/doc-truyen/:title/:chapter"
+                  element={<NovelReading />}
+                />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </PrioritizedSourcesProvider>
       </ThemeProvider>
 
       <Toaster
