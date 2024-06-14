@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.dto.DownloadRequestDTO;
 import com.example.demo.dto.NovelDownloadContentDTO;
 import com.example.demo.factory.ExportServiceFactory;
+import com.example.demo.factory.ScrapingServiceFactory;
 import com.example.demo.response.BaseResponse;
 import com.example.demo.response.NovelDownloadContentResponse;
 import com.example.demo.service.ExportServices.IExportServiceStrategy;
