@@ -6,3 +6,4 @@ import com.example.demo.response.NovelDownloadContentResponse;
 public interface IExportServiceStrategy {
     byte[] exportNovel(NovelDownloadContentDTO novelDownloadContentDTO) throws Exception;
 }
+

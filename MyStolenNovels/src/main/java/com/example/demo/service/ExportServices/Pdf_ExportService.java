@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+
+
 @Service
 public class Pdf_ExportService implements IExportServiceStrategy {
     private static final Logger log = LoggerFactory.getLogger(Pdf_ExportService.class);
@@ -189,3 +191,4 @@ public class Pdf_ExportService implements IExportServiceStrategy {
         return text.replaceAll("[^" + regex + "]", ""); // Replace characters not in the whitelist
     }
 }
+
