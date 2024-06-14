@@ -11,6 +11,7 @@ import com.example.demo.response.NovelChapterContentResponse;
 import com.example.demo.response.NovelChapterListResponse;
 import com.example.demo.response.NovelDetailResponse;
 import com.example.demo.response.SearchResponse;
+import com.example.demo.service.ScrapingServices.Truyenfull_ScrapingService;
 import com.example.demo.utils.StringManipulator;
 
 import org.jsoup.Jsoup;
