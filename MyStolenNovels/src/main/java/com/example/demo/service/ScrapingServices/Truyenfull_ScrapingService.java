@@ -33,7 +33,10 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
     @Autowired
     private HTTPClientRetry httpClientRetry;
     private static final Logger log = LoggerFactory.getLogger(Truyenfull_ScrapingService.class);
-
+    public void setStringManipulator(StringManipulator stringManipulator) {
+        this.stringManipulator = stringManipulator;
+        this.httpClientRetry = new HTTPClientRetry();
+    }
     //For getting download content
     private static final int MAX_RETRIES = 3;
     private static final int TIMEOUT = 10;
