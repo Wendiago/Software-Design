@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -54,7 +56,7 @@ public class ScrapingServiceFactory {
     }
 
     public List<String> getAvailableSources() {
-        return strategies.keySet().stream().toList();
+        return new ArrayList<>(strategies.keySet());
     }
 
     public IScrapingServiceStrategy getScrapingStrategy(String format) throws Exception {

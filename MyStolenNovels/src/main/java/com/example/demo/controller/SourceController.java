@@ -26,6 +26,7 @@ public class SourceController {
         try{
             List<String> sources = scrapingFactory.getAvailableSources();
             Collections.reverse(sources);
+            //log.info(sources.toString());
             return ResponseEntity.ok(BaseResponse.<List<String>>builder()
                     .status("Success")
                     .message(MessageKeys.GET_SOURCES_SUCCESSFULLY)

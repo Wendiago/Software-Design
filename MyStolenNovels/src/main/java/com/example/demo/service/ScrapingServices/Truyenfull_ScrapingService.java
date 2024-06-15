@@ -6,7 +6,6 @@ import com.example.demo.response.*;
 import com.example.demo.utils.HTTPClientRetry;
 import com.example.demo.utils.StringManipulator;
 import com.google.common.util.concurrent.RateLimiter;
-import lombok.AllArgsConstructor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,8 +32,6 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
         this.stringManipulator = stringManipulator;
         this.httpClientRetry = new HTTPClientRetry();
     }
-    
-
     @Autowired
     private HTTPClientRetry httpClientRetry;
     private static final Logger log = LoggerFactory.getLogger(Truyenfull_ScrapingService.class);
@@ -87,7 +83,7 @@ public class Truyenfull_ScrapingService implements IScrapingServiceStrategy {
         int totalPages = 1;
         try {
             // Send an HTTP GET request to the website
-            Document document = Jsoup.connect(url + Integer.toString(page)).get();
+            Document document = Jsoup.connect(url + page).get();
 
             //Get total pages
             totalPages = getTotalPages(document);
