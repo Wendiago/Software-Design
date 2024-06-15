@@ -101,7 +101,9 @@ const ServerNav = ({ sources, currentSource, title, onHandleServer }) => {
               }
             >
               <div className={classes.server}>
-                <span>Server {index + 1}</span>
+                <span>
+                  Server <strong>{source}</strong>
+                </span>
                 {prioritizedSources.includes(source) ? (
                   <StarIcon
                     color="error"
